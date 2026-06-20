@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лебёдушка · Трекер зарядки</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Лебёдушка">
+<meta name="theme-color" content="#1a2b4a">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<style>
+  :root {
+    --ink: #1a2b4a; --ink-soft: #5a6b85; --pearl: #f7f9fc; --card: #ffffff;
+    --line: #e4eaf2; --teal: #0d8a8a; --teal-soft: #e6f4f4; --gold: #c89a3c;
+    --gold-soft: #faf4e4; --green: #1b7a4b; --green-soft: #e7f4ec;
+    --shadow: 0 1px 3px rgba(26,43,74,.06), 0 8px 24px rgba(26,43,74,.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--pearl); color: var(--ink); line-height: 1.5; padding-bottom: 48px; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 540px; margin: 0 auto; padding: 0 16px; }
+  header { background: linear-gradient(135deg, #1a2b4a 0%, #29406b 100%); color: #fff;
+    padding: 26px 0 24px; border-radius: 0 0 24px 24px; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .swan { font-size: 28px; }
+  .brand h1 { font-size: 21px; font-weight: 700; letter-spacing: .2px; }
+  .brand .sub { font-size: 12.5px; color: #b9c6dd; font-weight: 500; margin-top: 1px; }
+  .summary { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .scard { background: var(--card); border-radius: 16px; padding: 15px 16px 13px; box-shadow: var(--shadow); }
+  .scard .lbl { font-size: 11px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .scard .val { font-size: 25px; font-weight: 750; margin-top: 4px; letter-spacing: -.5px; }
+  .scard .unit { font-size: 14px; font-weight: 600; color: var(--ink-soft); }
+  .scard.cost .val { color: var(--green); }
+  .scard.energy .val { color: var(--teal); }
+  .scard .note { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .savings { background: linear-gradient(120deg, var(--gold-soft), #fff); border: 1px solid #f0e3c4;
+    border-radius: 16px; padding: 13px 16px; margin-top: 12px; display: flex; align-items: center; gap: 12px; }
+  .savings .ic { font-size: 22px; }
+  .savings .txt { font-size: 13px; color: #6b5320; }
+  .savings .txt b { color: var(--gold); font-size: 15px; }
+  .sec-title { font-size: 13px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase;
+    letter-spacing: .6px; margin: 24px 4px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .sec-title .filter { display: flex; gap: 6px; }
+  .chip { font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--line);
+    background: #fff; color: var(--ink-soft); cursor: pointer; transition: all .15s; }
+  .chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .addbox { background: var(--card); border-radius: 18px; padding: 18px; box-shadow: var(--shadow); }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); margin-bottom: 5px; }
+  .field input, .field select { width: 100%; padding: 11px 12px; font-size: 15px; border: 1.5px solid var(--line);
+    border-radius: 11px; background: var(--pearl); color: var(--ink); font-family: inherit; -webkit-appearance: none; appearance: none; }
+  .field input:focus { outline: none; border-color: var(--teal); background: #fff; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .seg { display: flex; gap: 6px; }
+  .seg button { flex: 1; padding: 9px; font-size: 13px; font-weight: 600; border: 1.5px solid var(--line);
+    border-radius: 10px; background: var(--pearl); color: var(--ink-soft); cursor: pointer; font-family: inherit; transition: all .15s; }
+  .seg button.on { background: var(--teal-soft); border-color: var(--teal); color: var(--teal); }
+  .seg button.on.pub { background: var(--gold-soft); border-color: var(--gold); color: var(--gold); }
+  .btn-add { width: 100%; padding: 13px; margin-top: 4px; background: var(--teal); color: #fff; font-size: 15px;
+    font-weight: 700; border: none; border-radius: 12px; cursor: pointer; font-family: inherit; transition: background .15s; }
+  .btn-add:active { background: #0a7070; }
+  .live-cost { font-size: 12.5px; color: var(--ink-soft); text-align: center; margin-top: 9px; min-height: 16px; }
+  .live-cost b { color: var(--green); }
+  .month-group { margin-bottom: 18px; }
+  .month-head { display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px 9px; margin-bottom: 2px; }
+  .month-head .m-name { font-size: 15px; font-weight: 750; }
+  .month-head .m-stats { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+  .month-head .m-stats b { color: var(--green); }
+  .entry { background: var(--card); border-radius: 14px; padding: 14px 15px; box-shadow: var(--shadow);
+    margin-bottom: 9px; position: relative; animation: pop .25s ease; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .entry .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .entry .where { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14.5px; flex-wrap: wrap; padding-right: 28px; }
+  .entry .where .pin { font-size: 15px; }
+  .badge-eco { font-size: 10px; font-weight: 700; color: var(--green); background: var(--green-soft); padding: 2px 7px; border-radius: 7px; }
+  .badge-pub { font-size: 10px; font-weight: 700; color: var(--gold); background: var(--gold-soft); padding: 2px 7px; border-radius: 7px; }
+  .entry .kwh { text-align: right; white-space: nowrap; }
+  .entry .kwh .n { font-size: 18px; font-weight: 750; letter-spacing: -.3px; }
+  .entry .kwh .u { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+  .entry .meta { display: flex; justify-content: space-between; align-items: center; margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--line); }
+  .entry .soc { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+  .entry .soc .arrow { color: var(--teal); margin: 0 4px; }
+  .entry .cost { font-size: 14px; font-weight: 700; color: var(--green); }
+  .entry .rate-tag { font-size: 10.5px; color: var(--ink-soft); font-weight: 500; }
+  .entry .date { font-size: 12px; color: var(--ink-soft); margin-top: 3px; }
+  .entry .del { position: absolute; top: 11px; right: 11px; width: 26px; height: 26px; border: none; background: transparent;
+    color: #c2ccdb; font-size: 18px; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .entry .del:hover { background: #fdeaea; color: #d14343; }
+  .empty { text-align: center; padding: 40px 20px; color: var(--ink-soft); }
+  .empty .ic { font-size: 36px; opacity: .4; }
+  .empty p { font-size: 14px; margin-top: 8px; }
+  .minirate { font-size: 12px; color: var(--ink-soft); text-align: center; margin-top: 18px; line-height: 1.6; }
+  .minirate b { color: var(--ink); }
+  .tools { display: flex; gap: 8px; margin-top: 16px; }
+  .tools button { flex: 1; padding: 11px; font-size: 13px; font-weight: 600; border: 1.5px solid var(--line);
+    border-radius: 11px; background: #fff; color: var(--ink); cursor: pointer; font-family: inherit; transition: all .15s; }
+  .tools button:active { background: var(--pearl); }
+  .settings-toggle { font-size: 12.5px; color: var(--teal); text-align: center; margin-top: 12px; cursor: pointer; font-weight: 600; }
+  .settings { display: none; background: var(--card); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); margin-top: 10px; }
+  .settings.open { display: block; }
+  .settings .hint { font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
+  .settings .hint b { color: var(--ink); }
+  .btn-apply-all { width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; font-weight: 600;
+    background: var(--gold-soft); color: var(--gold); border: 1.5px solid #f0e3c4; border-radius: 10px; cursor: pointer; font-family: inherit; }
+  input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <span class="swan">🦢</span>
+      <div><h1>Лебёдушка</h1><div class="sub">Трекер зарядки · Toyota bZ</div></div>
+    </div>
+  </div>
+</header>
+<div class="wrap">
+  <div class="summary">
+    <div class="scard energy">
+      <div class="lbl">⚡ Энергия</div>
+      <div class="val" id="sumKwh">0<span class="unit"> кВтч</span></div>
+      <div class="note" id="sumCount">нет зарядок</div>
+    </div>
+    <div class="scard cost">
+      <div class="lbl">💵 Потрачено</div>
+      <div class="val" id="sumCost">$0</div>
+      <div class="note">за всё время</div>
+    </div>
+  </div>
+  <div class="savings">
+    <span class="ic">🏆</span>
+    <div class="txt">Сэкономлено против бензина: <b id="savings">$0</b><br><span id="savingsNote" style="font-size:11.5px;"></span></div>
+  </div>
+  <div class="sec-title">Добавить зарядку</div>
+  <div class="addbox">
+    <div class="row2">
+      <div class="field"><label>Было %</label><input type="number" id="socFrom" inputmode="numeric" placeholder="62" min="0" max="100"></div>
+      <div class="field"><label>Стало %</label><input type="number" id="socTo" inputmode="numeric" placeholder="80" min="0" max="100"></div>
+    </div>
+    <div class="field"><label>кВтч (из приложения Toyota)</label><input type="number" id="kwh" inputmode="decimal" step="0.001" placeholder="11.826"></div>
+    <div class="row2">
+      <div class="field"><label>Дата</label><input type="date" id="date"></div>
+      <div class="field"><label>Место</label>
+        <div class="seg">
+          <button type="button" id="locHome" class="on" onclick="setLoc('home')">🏠 Дом</button>
+          <button type="button" id="locPub" onclick="setLoc('public')">📍 Дорога</button>
+        </div>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:10px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;color:var(--ink);">
+        <input type="checkbox" id="eco" style="width:auto;transform:scale(1.2);"> ECO режим зарядки
+      </label>
+    </div>
+    <div class="field" id="pubRateField" style="display:none;">
+      <label>Цена за кВтч в дороге ($)</label>
+      <input type="number" id="pubRate" inputmode="decimal" step="0.01" placeholder="0.50" value="0.50">
+    </div>
+    <button class="btn-add" onclick="addEntry()">Добавить зарядку</button>
+    <div class="live-cost" id="liveCost"></div>
+  </div>
+  <div class="tools">
+    <button onclick="exportData()">⬇️ Сохранить в файл</button>
+    <button onclick="document.getElementById('importFile').click()">⬆️ Загрузить из файла</button>
+    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+  </div>
+  <div class="settings-toggle" onclick="toggleSettings()">⚙️ Настройки тарифа</div>
+  <div class="settings" id="settings">
+    <div class="field"><label>Домашний тариф Avista ($/кВтч)</label><input type="number" id="homeRate" inputmode="decimal" step="0.001" value="0.097"></div>
+    <div class="row2">
+      <div class="field"><label>Бензин: миль/галлон</label><input type="number" id="gasMpg" inputmode="decimal" value="25"></div>
+      <div class="field"><label>Бензин: $/галлон</label><input type="number" id="gasPrice" inputmode="decimal" step="0.01" value="4.70"></div>
+    </div>
+    <p class="hint">📌 Новый тариф применяется только к <b>новым</b> зарядкам. Уже введённые хранят свой тариф на момент зарядки — история остаётся точной даже если Avista меняет цены.</p>
+    <button class="btn-apply-all" onclick="applyRateToAll()">Пересчитать ВСЕ домашние зарядки по текущему тарифу</button>
+  </div>
+  <div class="sec-title">
+    <span>История по месяцам</span>
+    <span class="filter">
+      <button class="chip active" data-f="all" onclick="setFilter('all')">Все</button>
+      <button class="chip" data-f="home" onclick="setFilter('home')">Дом</button>
+      <button class="chip" data-f="public" onclick="setFilter('public')">Дорога</button>
+    </span>
+  </div>
+  <div id="list"></div>
+  <div class="minirate">
+    1% батареи ≈ <b>0.657 кВтч</b> · реальный расход <b>0.188 кВтч/милю</b><br>
+    1 кВтч дома ≈ <b>10 центов</b> · 1 миля ≈ <b>2 цента</b>
+  </div>
+</div>
+<script>
+  let entries = [];
+  let curLoc = 'home';
+  let curFilter = 'all';
+
+  function load() {
+    try { const r = localStorage.getItem('bz_charges'); if (r) entries = JSON.parse(r); }
+    catch(e) { entries = []; }
+    try { const s = localStorage.getItem('bz_settings'); if (s) {
+        const set = JSON.parse(s);
+        if (set.homeRate) document.getElementById('homeRate').value = set.homeRate;
+        if (set.gasMpg) document.getElementById('gasMpg').value = set.gasMpg;
+        if (set.gasPrice) document.getElementById('gasPrice').value = set.gasPrice;
+    }} catch(e) {}
+    render();
+  }
+  function save() { try { localStorage.setItem('bz_charges', JSON.stringify(entries)); } catch(e) {} }
+  function saveSettings() {
+    try { localStorage.setItem('bz_settings', JSON.stringify({
+      homeRate: document.getElementById('homeRate').value,
+      gasMpg: document.getElementById('gasMpg').value,
+      gasPrice: document.getElementById('gasPrice').value })); } catch(e) {}
+    render();
+  }
+  const homeRate = () => parseFloat(document.getElementById('homeRate').value) || 0.097;
+  const gasMpg = () => parseFloat(document.getElementById('gasMpg').value) || 25;
+  const gasPrice = () => parseFloat(document.getElementById('gasPrice').value) || 4.70;
+
+  function setLoc(l) {
+    curLoc = l;
+    document.getElementById('locHome').classList.toggle('on', l==='home');
+    document.getElementById('locPub').classList.toggle('on', l==='public');
+    document.getElementById('locPub').classList.toggle('pub', l==='public');
+    document.getElementById('pubRateField').style.display = l==='public' ? 'block' : 'none';
+    liveCalc();
+  }
+  function setFilter(f) {
+    curFilter = f;
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.f===f));
+    render();
+  }
+  function toggleSettings() { document.getElementById('settings').classList.toggle('open'); }
+
+  function entryRate(e) { return (e.rate != null) ? e.rate : (e.loc==='public' ? (e.pubRate||0.50) : homeRate()); }
+  function entryCost(e) { return e.kwh * entryRate(e); }
+
+  function liveCalc() {
+    const kwh = parseFloat(document.getElementById('kwh').value);
+    const el = document.getElementById('liveCost');
+    if (!kwh) { el.innerHTML = ''; return; }
+    const rate = curLoc==='public' ? (parseFloat(document.getElementById('pubRate').value)||0.50) : homeRate();
+    el.innerHTML = `≈ <b>$${(kwh*rate).toFixed(2)}</b> · добавит ~${Math.round(kwh/0.188)} миль`;
+  }
+  ['kwh','pubRate'].forEach(id => document.getElementById(id).addEventListener('input', liveCalc));
+
+  function addEntry() {
+    const from = parseInt(document.getElementById('socFrom').value);
+    const to = parseInt(document.getElementById('socTo').value);
+    const kwh = parseFloat(document.getElementById('kwh').value);
+    const date = document.getElementById('date').value || new Date().toISOString().slice(0,10);
+    const eco = document.getElementById('eco').checked;
+    const pubRate = parseFloat(document.getElementById('pubRate').value) || 0.50;
+    if (!kwh || kwh <= 0) { alert('Введите кВтч из приложения Toyota'); return; }
+    const rate = curLoc==='public' ? pubRate : homeRate();
+    entries.push({ id: Date.now(), from: isNaN(from)?null:from, to: isNaN(to)?null:to, kwh, date, loc: curLoc, eco, rate });
+    save(); render();
+    document.getElementById('socFrom').value = '';
+    document.getElementById('socTo').value = '';
+    document.getElementById('kwh').value = '';
+    document.getElementById('eco').checked = false;
+    document.getElementById('liveCost').innerHTML = '';
+  }
+  function delEntry(id) {
+    if (!confirm('Удалить эту зарядку?')) return;
+    entries = entries.filter(e => e.id !== id); save(); render();
+  }
+  function applyRateToAll() {
+    if (!confirm('Пересчитать ВСЕ домашние зарядки по текущему тарифу $'+homeRate()+'? Это перезапишет исторические тарифы.')) return;
+    entries.forEach(e => { if (e.loc==='home') e.rate = homeRate(); }); save(); render();
+  }
+  function exportData() {
+    const data = { version: 1, exported: new Date().toISOString(),
+      settings: { homeRate: homeRate(), gasMpg: gasMpg(), gasPrice: gasPrice() }, entries };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'lebedushka_charges_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+    URL.revokeObjectURL(url);
+  }
+  function importData(ev) {
+    const file = ev.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data.entries) {
+          if (!confirm('Загрузить '+data.entries.length+' зарядок из файла? Текущие данные будут заменены.')) return;
+          entries = data.entries;
+          if (data.settings) {
+            document.getElementById('homeRate').value = data.settings.homeRate;
+            document.getElementById('gasMpg').value = data.settings.gasMpg;
+            document.getElementById('gasPrice').value = data.settings.gasPrice;
+            saveSettings();
+          }
+          save(); render();
+          alert('Загружено: ' + data.entries.length + ' зарядок ✓');
+        } else { alert('Неверный формат файла'); }
+      } catch(err) { alert('Ошибка чтения файла'); }
+    };
+    reader.readAsText(file); ev.target.value = '';
+  }
+  function fmtDate(d) {
+    const months = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+    const dt = new Date(d + 'T00:00');
+    return `${dt.getDate()} ${months[dt.getMonth()]}`;
+  }
+  function monthKey(d) { return d.slice(0,7); }
+  function monthName(key) {
+    const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const [y,m] = key.split('-');
+    return months[parseInt(m)-1] + ' ' + y;
+  }
+  function render() {
+    const totKwh = entries.reduce((s,e)=>s+e.kwh,0);
+    const totCost = entries.reduce((s,e)=>s+entryCost(e),0);
+    document.getElementById('sumKwh').innerHTML = totKwh.toFixed(1) + '<span class="unit"> кВтч</span>';
+    document.getElementById('sumCost').innerHTML = '$' + totCost.toFixed(2);
+    document.getElementById('sumCount').textContent = entries.length===0 ? 'нет зарядок' :
+      entries.length + (entries.length===1?' зарядка':entries.length<5?' зарядки':' зарядок');
+    const miles = totKwh / 0.188;
+    const gasCost = miles / gasMpg() * gasPrice();
+    document.getElementById('savings').textContent = '$' + (gasCost - totCost).toFixed(2);
+    document.getElementById('savingsNote').textContent = entries.length===0 ? 'добавьте зарядки чтобы увидеть' :
+      `~${Math.round(miles)} миль · бензин стоил бы $${gasCost.toFixed(2)}`;
+    const list = document.getElementById('list');
+    const shown = entries.filter(e => curFilter==='all' || e.loc===curFilter);
+    if (shown.length === 0) {
+      list.innerHTML = `<div class="empty"><div class="ic">🔌</div><p>${entries.length===0?'Пока нет зарядок. Добавьте первую выше.':'Нет зарядок в этой категории.'}</p></div>`;
+      return;
+    }
+    const groups = {};
+    shown.forEach(e => { const k = monthKey(e.date); (groups[k] = groups[k] || []).push(e); });
+    const keys = Object.keys(groups).sort().reverse();
+    list.innerHTML = keys.map(key => {
+      const items = groups[key].sort((a,b)=> b.date.localeCompare(a.date) || b.id-a.id);
+      const mKwh = items.reduce((s,e)=>s+e.kwh,0);
+      const mCost = items.reduce((s,e)=>s+entryCost(e),0);
+      const rows = items.map(e => {
+        const cost = entryCost(e);
+        const socLine = (e.from!=null && e.to!=null)
+          ? `<span class="soc">${e.from}%<span class="arrow">→</span>${e.to}%</span>` : `<span class="soc">—</span>`;
+        const pin = e.loc==='home' ? '🏠' : '📍';
+        const where = e.loc==='home' ? 'Дом' : 'В дороге';
+        const ecoBadge = e.eco ? '<span class="badge-eco">ECO</span>' : '';
+        const pubBadge = e.loc==='public' ? `<span class="badge-pub">$${entryRate(e).toFixed(2)}/кВтч</span>` : '';
+        return `
+          <div class="entry">
+            <button class="del" onclick="delEntry(${e.id})">×</button>
+            <div class="top">
+              <div>
+                <div class="where"><span class="pin">${pin}</span> ${where} ${ecoBadge} ${pubBadge}</div>
+                <div class="date">${fmtDate(e.date)}</div>
+              </div>
+              <div class="kwh"><span class="n">${e.kwh.toFixed(3)}</span> <span class="u">кВтч</span></div>
+            </div>
+            <div class="meta">${socLine}<span class="cost">$${cost.toFixed(2)} <span class="rate-tag">(${entryRate(e).toFixed(3)})</span></span></div>
+          </div>`;
+      }).join('');
+      return `<div class="month-group">
+          <div class="month-head"><span class="m-name">${monthName(key)}</span>
+            <span class="m-stats">${mKwh.toFixed(1)} кВтч · <b>$${mCost.toFixed(2)}</b></span></div>
+          ${rows}</div>`;
+    }).join('');
+  }
+  ['homeRate','gasMpg','gasPrice'].forEach(id => document.getElementById(id).addEventListener('input', saveSettings));
+  document.getElementById('date').value = new Date().toISOString().slice(0,10);
+  load();
+</script>
+</body>
+</html>
