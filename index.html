@@ -331,7 +331,7 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
   function load() {
     let loaded = false;
     try {
-      const r = localStorage.getItem('bz_v3');
+      const r = localStorage.getItem('bz_v4');
       if (r) {
         const d = JSON.parse(r);
         // Если в хранилище есть реальные зарядки — берём их. Если пусто — грузим SEED.
@@ -360,7 +360,7 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
     if (s.gasPrice) document.getElementById('gasPrice').value = s.gasPrice;
   }
   function save() {
-    try { localStorage.setItem('bz_v3', JSON.stringify({
+    try { localStorage.setItem('bz_v4', JSON.stringify({
       entries, odoReadings, meterReadings,
       settings: { homeRate: homeRate(), gasMpg: gasMpg(), gasPrice: gasPrice() }
     })); } catch(e){}
