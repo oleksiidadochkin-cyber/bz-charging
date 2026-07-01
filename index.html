@@ -330,12 +330,23 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
 
   function load() {
     let loaded = false;
-    try { const r = localStorage.getItem('bz_v3'); if (r) { const d = JSON.parse(r); entries=d.entries||[]; odoReadings=d.odoReadings||[]; meterReadings=d.meterReadings||[]; if(d.settings){setSettings(d.settings);} loaded=true; } } catch(e){}
+    try {
+      const r = localStorage.getItem('bz_v3');
+      if (r) {
+        const d = JSON.parse(r);
+        // Если в хранилище есть реальные зарядки — берём их. Если пусто — грузим SEED.
+        if (d.entries && d.entries.length > 0) {
+          entries=d.entries; odoReadings=d.odoReadings||[]; meterReadings=d.meterReadings||[];
+          if(d.settings){setSettings(d.settings);}
+          loaded=true;
+        }
+      }
+    } catch(e){}
     if (!loaded) {
-      // первая загрузка — берём SEED
-      entries = SEED.entries || [];
-      odoReadings = SEED.odoReadings || [];
-      meterReadings = SEED.meterReadings || [];
+      // пусто или первая загрузка — берём встроенную базу SEED
+      entries = (SEED.entries || []).slice();
+      odoReadings = (SEED.odoReadings || []).slice();
+      meterReadings = (SEED.meterReadings || []).slice();
       if (SEED.settings) setSettings(SEED.settings);
       save();
     }
