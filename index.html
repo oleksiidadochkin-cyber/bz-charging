@@ -41,6 +41,13 @@
   .savings .ic { font-size: 22px; }
   .savings .txt { font-size: 13px; color: #6b5320; }
   .savings .txt b { color: var(--gold); font-size: 15px; }
+  .breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .bd-cell { background: var(--card); border-radius: 12px; padding: 10px; box-shadow: var(--shadow); text-align: center; }
+  .bd-cell .bl { font-size: 10px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; }
+  .bd-cell .bv { font-size: 15px; font-weight: 700; margin-top: 2px; }
+  .bd-cell.home .bv { color: var(--teal); }
+  .bd-cell.road .bv { color: var(--gold); }
+  .bd-cell.free .bv { color: var(--green); }
   .sec-title { font-size: 13px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase;
     letter-spacing: .6px; margin: 24px 4px 12px; display: flex; align-items: center; justify-content: space-between; }
   .sec-title .filter { display: flex; gap: 6px; }
@@ -48,6 +55,12 @@
     background: #fff; color: var(--ink-soft); cursor: pointer; transition: all .15s; }
   .chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
   .addbox { background: var(--card); border-radius: 18px; padding: 18px; box-shadow: var(--shadow); }
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .tab { flex: 1; padding: 10px; font-size: 13px; font-weight: 600; border: 1.5px solid var(--line);
+    border-radius: 11px; background: var(--pearl); color: var(--ink-soft); cursor: pointer; font-family: inherit; text-align: center; transition: all .15s; }
+  .tab.on { background: var(--teal-soft); border-color: var(--teal); color: var(--teal); }
+  .tab-panel { display: none; }
+  .tab-panel.on { display: block; }
   .field { margin-bottom: 12px; }
   .field label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); margin-bottom: 5px; }
   .field input, .field select { width: 100%; padding: 11px 12px; font-size: 15px; border: 1.5px solid var(--line);
@@ -64,6 +77,8 @@
   .btn-add:active { background: #0a7070; }
   .live-cost { font-size: 12.5px; color: var(--ink-soft); text-align: center; margin-top: 9px; min-height: 16px; }
   .live-cost b { color: var(--green); }
+  .info-note { font-size: 11.5px; color: var(--ink-soft); background: var(--teal-soft); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; line-height: 1.5; }
+  .info-note b { color: var(--teal); }
   .month-group { margin-bottom: 18px; }
   .month-head { display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px 9px; margin-bottom: 2px; }
   .month-head .m-name { font-size: 15px; font-weight: 750; }
@@ -77,6 +92,8 @@
   .entry .where .pin { font-size: 15px; }
   .badge-eco { font-size: 10px; font-weight: 700; color: var(--green); background: var(--green-soft); padding: 2px 7px; border-radius: 7px; }
   .badge-pub { font-size: 10px; font-weight: 700; color: var(--gold); background: var(--gold-soft); padding: 2px 7px; border-radius: 7px; }
+  .badge-free { font-size: 10px; font-weight: 700; color: var(--green); background: var(--green-soft); padding: 2px 7px; border-radius: 7px; }
+  .badge-meter { font-size: 10px; font-weight: 700; color: var(--teal); background: var(--teal-soft); padding: 2px 7px; border-radius: 7px; }
   .entry .kwh { text-align: right; white-space: nowrap; }
   .entry .kwh .n { font-size: 18px; font-weight: 750; letter-spacing: -.3px; }
   .entry .kwh .u { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
@@ -94,7 +111,15 @@
   .empty p { font-size: 14px; margin-top: 8px; }
   .minirate { font-size: 12px; color: var(--ink-soft); text-align: center; margin-top: 18px; line-height: 1.6; }
   .minirate b { color: var(--ink); }
-  /* Efficiency block */
+  .tools { display: flex; gap: 8px; margin-top: 16px; }
+  .tools button { flex: 1; padding: 11px; font-size: 13px; font-weight: 600; border: 1.5px solid var(--line);
+    border-radius: 11px; background: #fff; color: var(--ink); cursor: pointer; font-family: inherit; transition: all .15s; }
+  .tools button:active { background: var(--pearl); }
+  .settings-toggle { font-size: 12.5px; color: var(--teal); text-align: center; margin-top: 12px; cursor: pointer; font-weight: 600; }
+  .settings { display: none; background: var(--card); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); margin-top: 10px; }
+  .settings.open { display: block; }
+  .settings .hint { font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
+  .settings .hint b { color: var(--ink); }
   .eff-box { background: var(--card); border-radius: 18px; padding: 18px; box-shadow: var(--shadow); }
   .eff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
   .eff-cell { background: var(--pearl); border-radius: 13px; padding: 13px 14px; }
@@ -116,25 +141,17 @@
   .range-row:last-child { border-bottom: none; }
   .range-row .rl { color: var(--ink-soft); font-weight: 600; }
   .range-row .rv { font-weight: 700; }
-  .month-eff { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
-  .odo-history { margin-top: 12px; }
+  .odo-history, .meter-history { margin-top: 12px; }
   .odo-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; background: var(--pearl);
     border: 1px solid var(--line); border-radius: 8px; padding: 4px 9px; margin: 0 5px 5px 0; color: var(--ink-soft); }
   .odo-chip b { color: var(--ink); }
   .odo-chip .x { color: #c2ccdb; cursor: pointer; font-weight: 700; margin-left: 2px; }
   .odo-chip .x:hover { color: #d14343; }
-  .tools { display: flex; gap: 8px; margin-top: 16px; }
-  .tools button { flex: 1; padding: 11px; font-size: 13px; font-weight: 600; border: 1.5px solid var(--line);
-    border-radius: 11px; background: #fff; color: var(--ink); cursor: pointer; font-family: inherit; transition: all .15s; }
-  .tools button:active { background: var(--pearl); }
-  .settings-toggle { font-size: 12.5px; color: var(--teal); text-align: center; margin-top: 12px; cursor: pointer; font-weight: 600; }
-  .settings { display: none; background: var(--card); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); margin-top: 10px; }
-  .settings.open { display: block; }
-  .settings .hint { font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
-  .settings .hint b { color: var(--ink); }
   .btn-apply-all { width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; font-weight: 600;
     background: var(--gold-soft); color: var(--gold); border: 1.5px solid #f0e3c4; border-radius: 10px; cursor: pointer; font-family: inherit; }
   input[type="file"] { display: none; }
+  .kpd-badge { font-size: 11px; color: var(--ink-soft); margin-top: 8px; text-align:center; }
+  .kpd-badge b { color: var(--gold); }
 </style>
 </head>
 <body>
@@ -159,60 +176,83 @@
       <div class="note">за всё время</div>
     </div>
   </div>
+  <div class="breakdown">
+    <div class="bd-cell home"><div class="bl">🏠 Дом</div><div class="bv" id="bdHome">$0</div></div>
+    <div class="bd-cell road"><div class="bl">🛣️ Дорога</div><div class="bv" id="bdRoad">$0</div></div>
+    <div class="bd-cell free"><div class="bl">🆓 Бесплатно</div><div class="bv" id="bdFree">0</div></div>
+  </div>
   <div class="savings">
     <span class="ic">🏆</span>
     <div class="txt">Сэкономлено против бензина: <b id="savings">$0</b><br><span id="savingsNote" style="font-size:11.5px;"></span></div>
   </div>
-  <div class="sec-title">Добавить зарядку</div>
+
+  <div class="sec-title">Добавить</div>
   <div class="addbox">
-    <div class="row2">
-      <div class="field"><label>Было %</label><input type="number" id="socFrom" inputmode="numeric" placeholder="62" min="0" max="100"></div>
-      <div class="field"><label>Стало %</label><input type="number" id="socTo" inputmode="numeric" placeholder="80" min="0" max="100"></div>
+    <div class="tabs">
+      <button class="tab on" id="tabMeter" onclick="setTab('meter')">🔢 Дом (счётчик)</button>
+      <button class="tab" id="tabRoad" onclick="setTab('road')">🛣️ Дорога</button>
     </div>
-    <div class="field"><label>кВтч (из приложения Toyota)</label><input type="number" id="kwh" inputmode="decimal" step="0.001" placeholder="11.826"></div>
-    <div class="row2">
-      <div class="field"><label>Дата</label><input type="date" id="date"></div>
-      <div class="field"><label>Место</label>
-        <div class="seg">
-          <button type="button" id="locHome" class="on" onclick="setLoc('home')">🏠 Дом</button>
-          <button type="button" id="locPub" onclick="setLoc('public')">📍 Дорога</button>
+
+    <!-- METER TAB (accumulative) -->
+    <div class="tab-panel on" id="panelMeter">
+      <div class="info-note">📟 Вводи <b>текущее показание счётчика</b> BOQNZN (накопительное). Трекер сам посчитает разницу с прошлым вводом = сколько потрачено. Удобно раз в неделю!</div>
+      <div class="field">
+        <label>Показание счётчика сейчас (кВтч)</label>
+        <input type="number" id="meterVal" inputmode="decimal" step="0.01" placeholder="напр. 25.40">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Дата</label>
+          <input type="date" id="meterDate">
+        </div>
+        <div class="field">
+          <label>Toyota app (опц., для КПД)</label>
+          <input type="number" id="meterToyota" inputmode="decimal" step="0.001" placeholder="кВтч в батарею">
         </div>
       </div>
+      <button class="btn-add" onclick="addMeter()">Обновить показание счётчика</button>
+      <div class="live-cost" id="meterLive"></div>
     </div>
-    <div class="field" style="margin-bottom:10px;">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;color:var(--ink);">
-        <input type="checkbox" id="eco" style="width:auto;transform:scale(1.2);"> ECO режим зарядки
-      </label>
+
+    <!-- ROAD TAB -->
+    <div class="tab-panel" id="panelRoad">
+      <div class="info-note">🛣️ Зарядки на станциях в поездках. Укажи кВтч и цену (0 если бесплатно).</div>
+      <div class="row2">
+        <div class="field"><label>Было %</label><input type="number" id="socFrom" inputmode="numeric" placeholder="40"></div>
+        <div class="field"><label>Стало %</label><input type="number" id="socTo" inputmode="numeric" placeholder="80"></div>
+      </div>
+      <div class="field"><label>кВтч (со станции / Toyota app)</label><input type="number" id="kwh" inputmode="decimal" step="0.001" placeholder="26.937"></div>
+      <div class="row2">
+        <div class="field"><label>Дата</label><input type="date" id="date"></div>
+        <div class="field"><label>Цена $/кВтч (0 = бесплатно)</label><input type="number" id="pubRate" inputmode="decimal" step="0.01" placeholder="0.50" value="0.50"></div>
+      </div>
+      <button class="btn-add" onclick="addRoad()">Добавить зарядку в дороге</button>
+      <div class="live-cost" id="roadLive"></div>
     </div>
-    <div class="field" id="pubRateField" style="display:none;">
-      <label>Цена за кВтч в дороге ($)</label>
-      <input type="number" id="pubRate" inputmode="decimal" step="0.01" placeholder="0.50" value="0.50">
-    </div>
-    <button class="btn-add" onclick="addEntry()">Добавить зарядку</button>
-    <div class="live-cost" id="liveCost"></div>
   </div>
+
   <div class="tools">
     <button onclick="exportData()">⬇️ Сохранить в файл</button>
     <button onclick="document.getElementById('importFile').click()">⬆️ Загрузить из файла</button>
     <input type="file" id="importFile" accept=".json" onchange="importData(event)">
   </div>
-  <div class="settings-toggle" onclick="toggleSettings()">⚙️ Настройки тарифа</div>
+  <div class="settings-toggle" onclick="toggleSettings()">⚙️ Настройки</div>
   <div class="settings" id="settings">
-    <div class="field"><label>Домашний тариф Avista ($/кВтч)</label><input type="number" id="homeRate" inputmode="decimal" step="0.001" value="0.097"></div>
+    <div class="field"><label>Домашний тариф Avista ($/кВтч)</label><input type="number" id="homeRate" inputmode="decimal" step="0.001" value="0.1277"></div>
     <div class="row2">
-      <div class="field"><label>Бензин: миль/галлон</label><input type="number" id="gasMpg" inputmode="decimal" value="25"></div>
-      <div class="field"><label>Бензин: $/галлон</label><input type="number" id="gasPrice" inputmode="decimal" step="0.01" value="4.70"></div>
+      <div class="field"><label>Бензин: миль/галлон</label><input type="number" id="gasMpg" inputmode="decimal" value="20"></div>
+      <div class="field"><label>Бензин: $/галлон</label><input type="number" id="gasPrice" inputmode="decimal" step="0.01" value="4.60"></div>
     </div>
-    <p class="hint">📌 Новый тариф применяется только к <b>новым</b> зарядкам. Уже введённые хранят свой тариф на момент зарядки — история остаётся точной даже если Avista меняет цены.</p>
-    <button class="btn-apply-all" onclick="applyRateToAll()">Пересчитать ВСЕ домашние зарядки по текущему тарифу</button>
+    <p class="hint">📌 Тариф $0.1277 = 12¢ + city tax 6.38%. Новый тариф применяется к новым зарядкам, старые хранят свой.</p>
   </div>
+
   <div class="sec-title">📊 Эффективность и запас хода</div>
   <div class="eff-box">
     <div class="eff-grid">
       <div class="eff-cell accent">
         <div class="ec-lbl">Реальный расход</div>
         <div class="ec-val" id="effCons">—</div>
-        <div class="ec-sub" id="effMpge">введите одометр ниже</div>
+        <div class="ec-sub" id="effMpge">введите одометр</div>
       </div>
       <div class="eff-cell gold">
         <div class="ec-lbl">Запас (100%)</div>
@@ -220,27 +260,16 @@
         <div class="ec-sub">по среднему расходу</div>
       </div>
     </div>
-
     <div class="range-row"><span class="rl">🔋 Запас 20–80%</span><span class="rv" id="eff2080">—</span></div>
     <div class="range-row"><span class="rl">🔋 Запас 10–80%</span><span class="rv" id="eff1080">—</span></div>
     <div class="range-row"><span class="rl">📏 Всего проехал</span><span class="rv" id="effMiles">—</span></div>
-
     <div class="odo-input">
-      <div class="field">
-        <label>Текущий одометр (мили)</label>
-        <input type="number" id="odoVal" inputmode="numeric" placeholder="332">
-      </div>
-      <div class="field" style="max-width:90px;">
-        <label>Заряд %</label>
-        <input type="number" id="odoSoc" inputmode="numeric" placeholder="61" min="0" max="100">
-      </div>
+      <div class="field"><label>Текущий одометр (мили)</label><input type="number" id="odoVal" inputmode="numeric" placeholder="1323"></div>
+      <div class="field" style="max-width:90px;"><label>Заряд %</label><input type="number" id="odoSoc" inputmode="numeric" placeholder="80"></div>
       <button onclick="addOdo()">Обновить</button>
     </div>
     <div class="odo-history" id="odoHistory"></div>
-
-    <div class="eff-note">
-      ⚠️ <b>Запас хода здесь — средний ориентир.</b> Реальный запас на приборной панели машины точнее: он учитывает кондиционер, обогрев и стиль езды в текущий момент. Например с кондиционером запас меньше на ~40–50 миль.
-    </div>
+    <div class="eff-note">⚠️ <b>Запас хода — средний ориентир.</b> Реальный на приборке точнее (учитывает кондиционер/обогрев). С кондиционером меньше на ~40–50 миль.</div>
   </div>
 
   <div class="sec-title">
@@ -253,267 +282,264 @@
   </div>
   <div id="list"></div>
   <div class="minirate">
-    1% батареи ≈ <b>0.657 кВтч</b> · реальный расход <b>0.188 кВтч/милю</b><br>
-    1 кВтч дома ≈ <b>10 центов</b> · 1 миля ≈ <b>2 цента</b>
+    1% батареи ≈ <b>0.657 кВтч</b> · реальный расход <b>~0.199 кВтч/милю</b><br>
+    1 кВтч дома ≈ <b>12.8 центов</b> · 1 миля дома ≈ <b>2.5 цента</b>
   </div>
 </div>
 <script>
+var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date": "2026-06-12", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921867805, "src": "toyota"}, {"from": 65, "to": 66, "kwh": 0.657, "date": "2026-06-12", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921868805, "src": "toyota"}, {"from": 66, "to": 77, "kwh": 7.227, "date": "2026-06-13", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921869805, "src": "toyota"}, {"from": 77, "to": 80, "kwh": 1.971, "date": "2026-06-13", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921870805, "src": "toyota"}, {"from": 71, "to": 80, "kwh": 5.913, "date": "2026-06-13", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921871805, "src": "toyota"}, {"from": 76, "to": 80, "kwh": 2.628, "date": "2026-06-14", "loc": "home", "eco": true, "rate": 0.1277, "id": 1781921872805, "src": "toyota"}, {"from": 70, "to": 80, "kwh": 6.57, "date": "2026-06-14", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921873805, "src": "toyota"}, {"from": 62, "to": 80, "kwh": 11.826, "date": "2026-06-15", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921874805, "src": "toyota"}, {"from": 61, "to": 80, "kwh": 12.483, "date": "2026-06-19", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921875805, "src": "toyota"}, {"from": 64, "to": 80, "kwh": 10.512, "date": "2026-06-21", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921876805, "src": "toyota"}, {"from": 67, "to": 80, "kwh": 8.541, "date": "2026-06-23", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921877805, "src": "toyota"}, {"from": 66, "to": 80, "kwh": 9.198, "date": "2026-06-24", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921878805, "src": "toyota"}, {"from": 62, "to": 80, "kwh": 11.826, "date": "2026-06-26", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921879805, "src": "toyota"}, {"from": 77, "to": 79, "kwh": 1.314, "date": "2026-06-26", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921880805, "src": "toyota"}, {"from": 57, "to": 94, "kwh": 24.309, "date": "2026-06-26", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921881805, "src": "toyota"}, {"from": 72, "to": 78, "kwh": 3.942, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921882805, "src": "toyota"}, {"from": 40, "to": 81, "kwh": 26.937, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921883805, "src": "toyota"}, {"from": 68, "to": 79, "kwh": 7.227, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921884805, "src": "toyota"}, {"from": 67, "to": 100, "kwh": 21.681, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921885805, "src": "toyota"}, {"from": 84, "to": 92, "kwh": 5.256, "date": "2026-06-28", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921886805, "src": "toyota"}, {"from": 64, "to": 100, "kwh": 23.652, "date": "2026-06-28", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921887805, "src": "toyota"}, {"from": 52, "to": 82, "kwh": 19.71, "date": "2026-06-28", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921888805, "src": "toyota"}, {"from": 30, "to": 80, "kwh": 32.85, "date": "2026-06-29", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921889805, "src": "toyota"}, {"from": 79, "to": 80, "kwh": 0.657, "date": "2026-06-29", "loc": "public", "eco": false, "rate": 0.0, "id": 1781921890805, "src": "toyota"}, {"from": 80, "to": 82, "kwh": 1.314, "date": "2026-06-29", "loc": "public", "eco": false, "rate": 0.0, "id": 1781921891805, "src": "toyota"}], "odoReadings": [{"odo": 332, "soc": 61, "date": "2026-06-20", "id": 1781923263894}, {"odo": 384, "soc": 64, "date": "2026-06-21", "id": 1782015852107}, {"odo": 408, "soc": 72, "date": "2026-06-22", "id": 1782102760618}, {"odo": 549, "soc": 62, "date": "2026-06-26", "id": 1782452129622}, {"odo": 1300, "soc": 80, "date": "2026-06-30", "id": 1782900000000}, {"odo": 1323, "soc": 80, "date": "2026-07-01", "id": 1782910000000}], "meterReadings": [{"reading": 3.88, "date": "2026-07-01", "id": 1782920000000}], "settings": {"homeRate": 0.1277, "gasMpg": 20, "gasPrice": 4.6, "meterStart": 0}};
+</script>
+<script>
   let entries = [];
-  let odoReadings = []; // {id, odo, soc, date}
-  let curLoc = 'home';
+  let odoReadings = [];
+  let meterReadings = [];
   let curFilter = 'all';
-  const CAP_PCT = 0.657; // кВтч на 1%
-  const PURCHASE_ODO = 1; // одометр при покупке
-  const PURCHASE_SOC = 100; // заряд при покупке
+  let curTab = 'meter';
+  const CAP_PCT = 0.657;
+  const PURCHASE_ODO = 1, PURCHASE_SOC = 100;
 
   function load() {
-    try { const r = localStorage.getItem('bz_charges'); if (r) entries = JSON.parse(r); }
-    catch(e) { entries = []; }
-    try { const o = localStorage.getItem('bz_odo'); if (o) odoReadings = JSON.parse(o); }
-    catch(e) { odoReadings = []; }
-    try { const s = localStorage.getItem('bz_settings'); if (s) {
-        const set = JSON.parse(s);
-        if (set.homeRate) document.getElementById('homeRate').value = set.homeRate;
-        if (set.gasMpg) document.getElementById('gasMpg').value = set.gasMpg;
-        if (set.gasPrice) document.getElementById('gasPrice').value = set.gasPrice;
-    }} catch(e) {}
+    let loaded = false;
+    try { const r = localStorage.getItem('bz_v3'); if (r) { const d = JSON.parse(r); entries=d.entries||[]; odoReadings=d.odoReadings||[]; meterReadings=d.meterReadings||[]; if(d.settings){setSettings(d.settings);} loaded=true; } } catch(e){}
+    if (!loaded) {
+      // первая загрузка — берём SEED
+      entries = SEED.entries || [];
+      odoReadings = SEED.odoReadings || [];
+      meterReadings = SEED.meterReadings || [];
+      if (SEED.settings) setSettings(SEED.settings);
+      save();
+    }
+    document.getElementById('meterDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('date').value = new Date().toISOString().slice(0,10);
     render();
+  }
+  function setSettings(s) {
+    if (s.homeRate) document.getElementById('homeRate').value = s.homeRate;
+    if (s.gasMpg) document.getElementById('gasMpg').value = s.gasMpg;
+    if (s.gasPrice) document.getElementById('gasPrice').value = s.gasPrice;
   }
   function save() {
-    try { localStorage.setItem('bz_charges', JSON.stringify(entries)); } catch(e) {}
-    try { localStorage.setItem('bz_odo', JSON.stringify(odoReadings)); } catch(e) {}
+    try { localStorage.setItem('bz_v3', JSON.stringify({
+      entries, odoReadings, meterReadings,
+      settings: { homeRate: homeRate(), gasMpg: gasMpg(), gasPrice: gasPrice() }
+    })); } catch(e){}
   }
-  function saveSettings() {
-    try { localStorage.setItem('bz_settings', JSON.stringify({
-      homeRate: document.getElementById('homeRate').value,
-      gasMpg: document.getElementById('gasMpg').value,
-      gasPrice: document.getElementById('gasPrice').value })); } catch(e) {}
-    render();
-  }
-  const homeRate = () => parseFloat(document.getElementById('homeRate').value) || 0.097;
-  const gasMpg = () => parseFloat(document.getElementById('gasMpg').value) || 25;
-  const gasPrice = () => parseFloat(document.getElementById('gasPrice').value) || 4.70;
+  const homeRate = () => parseFloat(document.getElementById('homeRate').value) || 0.1277;
+  const gasMpg = () => parseFloat(document.getElementById('gasMpg').value) || 20;
+  const gasPrice = () => parseFloat(document.getElementById('gasPrice').value) || 4.60;
 
-  function setLoc(l) {
-    curLoc = l;
-    document.getElementById('locHome').classList.toggle('on', l==='home');
-    document.getElementById('locPub').classList.toggle('on', l==='public');
-    document.getElementById('locPub').classList.toggle('pub', l==='public');
-    document.getElementById('pubRateField').style.display = l==='public' ? 'block' : 'none';
-    liveCalc();
+  function setTab(t) {
+    curTab = t;
+    document.getElementById('tabMeter').classList.toggle('on', t==='meter');
+    document.getElementById('tabRoad').classList.toggle('on', t==='road');
+    document.getElementById('panelMeter').classList.toggle('on', t==='meter');
+    document.getElementById('panelRoad').classList.toggle('on', t==='road');
   }
   function setFilter(f) {
     curFilter = f;
     document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.f===f));
     render();
   }
-  function toggleSettings() { document.getElementById('settings').classList.toggle('open'); }
+  function toggleSettings(){ document.getElementById('settings').classList.toggle('open'); }
 
-  function entryRate(e) { return (e.rate != null) ? e.rate : (e.loc==='public' ? (e.pubRate||0.50) : homeRate()); }
-  function entryCost(e) { return e.kwh * entryRate(e); }
+  function entryRate(e){ return (e.rate!=null)?e.rate:(e.loc==='public'?(e.pubRate||0.5):homeRate()); }
+  function entryCost(e){ return e.kwh * entryRate(e); }
 
-  function liveCalc() {
-    const kwh = parseFloat(document.getElementById('kwh').value);
-    const el = document.getElementById('liveCost');
-    if (!kwh) { el.innerHTML = ''; return; }
-    const rate = curLoc==='public' ? (parseFloat(document.getElementById('pubRate').value)||0.50) : homeRate();
-    el.innerHTML = `≈ <b>$${(kwh*rate).toFixed(2)}</b> · добавит ~${Math.round(kwh/0.188)} миль`;
+  // ---- METER (accumulative) ----
+  function meterLive() {
+    const val = parseFloat(document.getElementById('meterVal').value);
+    const el = document.getElementById('meterLive');
+    if (!val) { el.innerHTML=''; return; }
+    const last = lastMeterReading();
+    if (last && val > last.reading) {
+      const diff = val - last.reading;
+      el.innerHTML = 'С прошлого раза: <b>+'+diff.toFixed(2)+' кВтч</b> = $'+(diff*homeRate()).toFixed(2);
+    } else if (last && val <= last.reading) {
+      el.innerHTML = '<span style="color:#d14343">Показание должно быть больше '+last.reading.toFixed(2)+'</span>';
+    } else {
+      el.innerHTML = 'Первое показание: базовая точка отсчёта';
+    }
   }
-  ['kwh','pubRate'].forEach(id => document.getElementById(id).addEventListener('input', liveCalc));
+  function lastMeterReading() {
+    if (meterReadings.length===0) return null;
+    return meterReadings.slice().sort((a,b)=>b.reading-a.reading)[0];
+  }
+  function addMeter() {
+    const val = parseFloat(document.getElementById('meterVal').value);
+    const date = document.getElementById('meterDate').value || new Date().toISOString().slice(0,10);
+    const toyota = parseFloat(document.getElementById('meterToyota').value);
+    if (!val || val<=0) { alert('Введите показание счётчика'); return; }
+    const last = lastMeterReading();
+    if (last && val <= last.reading) { alert('Показание должно быть больше предыдущего ('+last.reading+')'); return; }
+    const diff = last ? (val - last.reading) : val;
+    // создаём домашнюю зарядку на разницу
+    if (last) {
+      entries.push({ id: Date.now(), kwh: diff, date, loc:'home', eco:false, rate: homeRate(), src:'meter',
+        toyotaKwh: (!isNaN(toyota)&&toyota>0)?toyota:null });
+    }
+    meterReadings.push({ id: Date.now()+1, reading: val, date });
+    save(); render();
+    document.getElementById('meterVal').value=''; document.getElementById('meterToyota').value='';
+    document.getElementById('meterLive').innerHTML='';
+    if(!last) alert('Записана базовая точка ('+val+' кВтч). Следующее показание посчитает разницу.');
+  }
 
-  function addEntry() {
+  // ---- ROAD ----
+  function roadLive() {
+    const kwh = parseFloat(document.getElementById('kwh').value);
+    const el = document.getElementById('roadLive');
+    if (!kwh) { el.innerHTML=''; return; }
+    const rate = parseFloat(document.getElementById('pubRate').value)||0;
+    const cost = kwh*rate;
+    el.innerHTML = rate===0 ? '🆓 Бесплатно · ~'+Math.round(kwh/0.199)+' миль' : '≈ <b>$'+cost.toFixed(2)+'</b> · ~'+Math.round(kwh/0.199)+' миль';
+  }
+  function addRoad() {
     const from = parseInt(document.getElementById('socFrom').value);
     const to = parseInt(document.getElementById('socTo').value);
     const kwh = parseFloat(document.getElementById('kwh').value);
     const date = document.getElementById('date').value || new Date().toISOString().slice(0,10);
-    const eco = document.getElementById('eco').checked;
-    const pubRate = parseFloat(document.getElementById('pubRate').value) || 0.50;
-    if (!kwh || kwh <= 0) { alert('Введите кВтч из приложения Toyota'); return; }
-    const rate = curLoc==='public' ? pubRate : homeRate();
-    entries.push({ id: Date.now(), from: isNaN(from)?null:from, to: isNaN(to)?null:to, kwh, date, loc: curLoc, eco, rate });
+    const rate = parseFloat(document.getElementById('pubRate').value)||0;
+    if (!kwh||kwh<=0) { alert('Введите кВтч'); return; }
+    entries.push({ id: Date.now(), from:isNaN(from)?null:from, to:isNaN(to)?null:to, kwh, date, loc:'public', eco:false, rate });
     save(); render();
-    document.getElementById('socFrom').value = '';
-    document.getElementById('socTo').value = '';
-    document.getElementById('kwh').value = '';
-    document.getElementById('eco').checked = false;
-    document.getElementById('liveCost').innerHTML = '';
+    document.getElementById('socFrom').value=''; document.getElementById('socTo').value='';
+    document.getElementById('kwh').value=''; document.getElementById('roadLive').innerHTML='';
   }
+
   function delEntry(id) {
     if (!confirm('Удалить эту зарядку?')) return;
-    entries = entries.filter(e => e.id !== id); save(); render();
+    entries = entries.filter(e=>e.id!==id); save(); render();
   }
-  function applyRateToAll() {
-    if (!confirm('Пересчитать ВСЕ домашние зарядки по текущему тарифу $'+homeRate()+'? Это перезапишет исторические тарифы.')) return;
-    entries.forEach(e => { if (e.loc==='home') e.rate = homeRate(); }); save(); render();
-  }
-  // ---- Odometer ----
+
+  // ---- ODO ----
   function addOdo() {
     const odo = parseInt(document.getElementById('odoVal').value);
     const soc = parseInt(document.getElementById('odoSoc').value);
-    if (isNaN(odo) || odo <= 0) { alert('Введите текущий одометр (мили)'); return; }
-    if (isNaN(soc) || soc < 0 || soc > 100) { alert('Введите текущий заряд % (0-100)'); return; }
-    odoReadings.push({ id: Date.now(), odo, soc, date: new Date().toISOString().slice(0,10) });
+    if (isNaN(odo)||odo<=0) { alert('Введите одометр'); return; }
+    if (isNaN(soc)||soc<0||soc>100) { alert('Введите заряд % (0-100)'); return; }
+    odoReadings.push({ id:Date.now(), odo, soc, date:new Date().toISOString().slice(0,10) });
     save(); render();
-    document.getElementById('odoVal').value = '';
-    document.getElementById('odoSoc').value = '';
+    document.getElementById('odoVal').value=''; document.getElementById('odoSoc').value='';
   }
-  function delOdo(id) {
-    odoReadings = odoReadings.filter(o => o.id !== id); save(); render();
-  }
-  // Real consumption from purchase to latest odometer reading
+  function delOdo(id){ odoReadings=odoReadings.filter(o=>o.id!==id); save(); render(); }
+
   function calcEfficiency() {
     const totKwh = entries.reduce((s,e)=>s+e.kwh,0);
-    if (odoReadings.length === 0 || totKwh === 0) return null;
-    // latest reading
-    const latest = odoReadings.slice().sort((a,b)=> b.odo - a.odo || b.id - a.id)[0];
+    if (odoReadings.length===0||totKwh===0) return null;
+    const latest = odoReadings.slice().sort((a,b)=>b.odo-a.odo||b.id-a.id)[0];
     const miles = latest.odo - PURCHASE_ODO;
-    if (miles <= 0) return null;
-    // energy used = start charge + all charged - current charge
-    const startKwh = PURCHASE_SOC * CAP_PCT;
-    const curKwh = latest.soc * CAP_PCT;
-    const used = startKwh + totKwh - curKwh;
-    if (used <= 0) return null;
-    const cons = used / miles;            // кВтч/милю
-    const fullRange = (CAP_PCT * 100) / cons;
-    return {
-      cons, miles, used,
-      mpge: (1/cons) * 33.7,
-      fullRange,
-      r2080: (60 * CAP_PCT) / cons,
-      r1080: (70 * CAP_PCT) / cons,
-      curSoc: latest.soc,
-      curMiles: curKwh / cons
-    };
+    if (miles<=0) return null;
+    const startKwh = PURCHASE_SOC*CAP_PCT;
+    const curKwh = latest.soc*CAP_PCT;
+    // энергия в батарею = потрачено. Но entries — из розетки (с потерями).
+    // Для расхода берём энергию из розетки минус потери ~13%
+    const toBattery = totKwh*0.87;
+    const used = startKwh + toBattery - curKwh;
+    if (used<=0) return null;
+    const cons = used/miles; // в батарею
+    const consPlug = totKwh/miles; // из розетки (что платишь)
+    return { cons, consPlug, miles, mpge:(1/consPlug)*33.7,
+      fullRange:(CAP_PCT*100)/cons, r2080:(60*CAP_PCT)/cons, r1080:(70*CAP_PCT)/cons };
   }
+
   function exportData() {
-    const data = { version: 2, exported: new Date().toISOString(),
-      settings: { homeRate: homeRate(), gasMpg: gasMpg(), gasPrice: gasPrice() }, entries, odoReadings };
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const data = { version:3, exported:new Date().toISOString(),
+      settings:{homeRate:homeRate(),gasMpg:gasMpg(),gasPrice:gasPrice()}, entries, odoReadings, meterReadings };
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'lebedushka_charges_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+    a.href=url; a.download='lebedushka_charges_'+new Date().toISOString().slice(0,10)+'.json'; a.click();
     URL.revokeObjectURL(url);
   }
   function importData(ev) {
-    const file = ev.target.files[0]; if (!file) return;
+    const file = ev.target.files[0]; if(!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
       try {
-        const data = JSON.parse(e.target.result);
-        if (data.entries) {
-          if (!confirm('Загрузить '+data.entries.length+' зарядок из файла? Текущие данные будут заменены.')) return;
-          entries = data.entries;
-          odoReadings = data.odoReadings || [];
-          if (data.settings) {
-            document.getElementById('homeRate').value = data.settings.homeRate;
-            document.getElementById('gasMpg').value = data.settings.gasMpg;
-            document.getElementById('gasPrice').value = data.settings.gasPrice;
-            saveSettings();
-          }
-          save(); render();
-          alert('Загружено: ' + data.entries.length + ' зарядок ✓');
-        } else { alert('Неверный формат файла'); }
-      } catch(err) { alert('Ошибка чтения файла'); }
+        const d = JSON.parse(e.target.result);
+        if (d.entries) {
+          if(!confirm('Загрузить '+d.entries.length+' зарядок? Текущие данные заменятся.')) return;
+          entries=d.entries; odoReadings=d.odoReadings||[]; meterReadings=d.meterReadings||[];
+          if(d.settings) setSettings(d.settings);
+          save(); render(); alert('Загружено ✓');
+        } else alert('Неверный формат');
+      } catch(err){ alert('Ошибка чтения'); }
     };
-    reader.readAsText(file); ev.target.value = '';
+    reader.readAsText(file); ev.target.value='';
   }
-  function fmtDate(d) {
-    const months = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
-    const dt = new Date(d + 'T00:00');
-    return `${dt.getDate()} ${months[dt.getMonth()]}`;
-  }
-  function monthKey(d) { return d.slice(0,7); }
-  function monthName(key) {
-    const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-    const [y,m] = key.split('-');
-    return months[parseInt(m)-1] + ' ' + y;
-  }
+
+  function fmtDate(d){ const m=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек']; const dt=new Date(d+'T00:00'); return dt.getDate()+' '+m[dt.getMonth()]; }
+  function monthKey(d){ return d.slice(0,7); }
+  function monthName(k){ const m=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']; const p=k.split('-'); return m[parseInt(p[1])-1]+' '+p[0]; }
+
   function render() {
     const totKwh = entries.reduce((s,e)=>s+e.kwh,0);
     const totCost = entries.reduce((s,e)=>s+entryCost(e),0);
-    document.getElementById('sumKwh').innerHTML = totKwh.toFixed(1) + '<span class="unit"> кВтч</span>';
-    document.getElementById('sumCost').innerHTML = '$' + totCost.toFixed(2);
-    document.getElementById('sumCount').textContent = entries.length===0 ? 'нет зарядок' :
-      entries.length + (entries.length===1?' зарядка':entries.length<5?' зарядки':' зарядок');
+    document.getElementById('sumKwh').innerHTML = totKwh.toFixed(1)+'<span class="unit"> кВтч</span>';
+    document.getElementById('sumCost').innerHTML = '$'+totCost.toFixed(2);
+    document.getElementById('sumCount').textContent = entries.length+ ' зарядок';
+    // breakdown
+    const homeC = entries.filter(e=>e.loc==='home').reduce((s,e)=>s+entryCost(e),0);
+    const roadC = entries.filter(e=>e.loc==='public'&&entryRate(e)>0).reduce((s,e)=>s+entryCost(e),0);
+    const freeN = entries.filter(e=>e.loc==='public'&&entryRate(e)===0).length;
+    document.getElementById('bdHome').textContent = '$'+homeC.toFixed(2);
+    document.getElementById('bdRoad').textContent = '$'+roadC.toFixed(2);
+    document.getElementById('bdFree').textContent = freeN+' шт';
 
-    // Efficiency (use real consumption if odometer available, else default 0.188)
     const eff = calcEfficiency();
-    const consUsed = eff ? eff.cons : 0.188;
-    const miles = totKwh / consUsed;
-    const gasCost = miles / gasMpg() * gasPrice();
-    document.getElementById('savings').textContent = '$' + (gasCost - totCost).toFixed(2);
-    document.getElementById('savingsNote').textContent = entries.length===0 ? 'добавьте зарядки чтобы увидеть' :
-      `~${Math.round(miles)} миль · бензин стоил бы $${gasCost.toFixed(2)}`;
+    const consPlug = eff ? eff.consPlug : 0.199;
+    const miles = eff ? eff.miles : totKwh/consPlug;
+    const gasCost = miles/gasMpg()*gasPrice();
+    document.getElementById('savings').textContent = '$'+(gasCost-totCost).toFixed(2);
+    document.getElementById('savingsNote').textContent = entries.length===0?'добавьте зарядки':
+      '~'+Math.round(miles)+' миль · бензин стоил бы $'+gasCost.toFixed(2);
 
-    // Efficiency block
     if (eff) {
-      document.getElementById('effCons').textContent = eff.cons.toFixed(3) + ' кВтч/ми';
-      document.getElementById('effMpge').textContent = Math.round(eff.mpge) + ' MPGe · ' + (1/eff.cons).toFixed(1) + ' ми/кВтч';
-      document.getElementById('effRange').textContent = Math.round(eff.fullRange) + ' ми';
-      document.getElementById('eff2080').textContent = Math.round(eff.r2080) + ' миль';
-      document.getElementById('eff1080').textContent = Math.round(eff.r1080) + ' миль';
-      document.getElementById('effMiles').textContent = Math.round(eff.miles) + ' миль';
-    } else {
-      document.getElementById('effCons').textContent = '—';
-      document.getElementById('effMpge').textContent = 'введите одометр ниже';
-      document.getElementById('effRange').textContent = '—';
-      document.getElementById('eff2080').textContent = '—';
-      document.getElementById('eff1080').textContent = '—';
-      document.getElementById('effMiles').textContent = '—';
+      document.getElementById('effCons').textContent = eff.consPlug.toFixed(3)+' кВтч/ми';
+      document.getElementById('effMpge').textContent = Math.round(eff.mpge)+' MPGe (из розетки)';
+      document.getElementById('effRange').textContent = Math.round(eff.fullRange)+' ми';
+      document.getElementById('eff2080').textContent = Math.round(eff.r2080)+' миль';
+      document.getElementById('eff1080').textContent = Math.round(eff.r1080)+' миль';
+      document.getElementById('effMiles').textContent = Math.round(eff.miles)+' миль';
     }
-    // Odometer history chips
     const oh = document.getElementById('odoHistory');
-    if (odoReadings.length === 0) {
-      oh.innerHTML = '<div style="font-size:11.5px;color:var(--ink-soft);margin-top:8px;">Введите текущий пробег и заряд — трекер посчитает реальный расход и запас хода.</div>';
-    } else {
-      const sorted = odoReadings.slice().sort((a,b)=> b.odo - a.odo || b.id - a.id);
-      oh.innerHTML = sorted.map(o =>
-        `<span class="odo-chip"><b>${o.odo}</b> ми · ${o.soc}% · ${fmtDate(o.date)} <span class="x" onclick="delOdo(${o.id})">×</span></span>`
-      ).join('');
-    }
+    if (odoReadings.length===0) oh.innerHTML='<div style="font-size:11.5px;color:var(--ink-soft);margin-top:8px;">Введите пробег и заряд.</div>';
+    else { const s=odoReadings.slice().sort((a,b)=>b.odo-a.odo||b.id-a.id);
+      oh.innerHTML = s.map(o=>'<span class="odo-chip"><b>'+o.odo+'</b> ми · '+o.soc+'% · '+fmtDate(o.date)+' <span class="x" onclick="delOdo('+o.id+')">×</span></span>').join(''); }
 
     const list = document.getElementById('list');
-    const shown = entries.filter(e => curFilter==='all' || e.loc===curFilter);
-    if (shown.length === 0) {
-      list.innerHTML = `<div class="empty"><div class="ic">🔌</div><p>${entries.length===0?'Пока нет зарядок. Добавьте первую выше.':'Нет зарядок в этой категории.'}</p></div>`;
-      return;
-    }
-    const groups = {};
-    shown.forEach(e => { const k = monthKey(e.date); (groups[k] = groups[k] || []).push(e); });
-    const keys = Object.keys(groups).sort().reverse();
-    list.innerHTML = keys.map(key => {
-      const items = groups[key].sort((a,b)=> b.date.localeCompare(a.date) || b.id-a.id);
-      const mKwh = items.reduce((s,e)=>s+e.kwh,0);
-      const mCost = items.reduce((s,e)=>s+entryCost(e),0);
-      const rows = items.map(e => {
-        const cost = entryCost(e);
-        const socLine = (e.from!=null && e.to!=null)
-          ? `<span class="soc">${e.from}%<span class="arrow">→</span>${e.to}%</span>` : `<span class="soc">—</span>`;
-        const pin = e.loc==='home' ? '🏠' : '📍';
-        const where = e.loc==='home' ? 'Дом' : 'В дороге';
-        const ecoBadge = e.eco ? '<span class="badge-eco">ECO</span>' : '';
-        const pubBadge = e.loc==='public' ? `<span class="badge-pub">$${entryRate(e).toFixed(2)}/кВтч</span>` : '';
-        return `
-          <div class="entry">
-            <button class="del" onclick="delEntry(${e.id})">×</button>
-            <div class="top">
-              <div>
-                <div class="where"><span class="pin">${pin}</span> ${where} ${ecoBadge} ${pubBadge}</div>
-                <div class="date">${fmtDate(e.date)}</div>
-              </div>
-              <div class="kwh"><span class="n">${e.kwh.toFixed(3)}</span> <span class="u">кВтч</span></div>
-            </div>
-            <div class="meta">${socLine}<span class="cost">$${cost.toFixed(2)} <span class="rate-tag">(${entryRate(e).toFixed(3)})</span></span></div>
-          </div>`;
+    const shown = entries.filter(e=>curFilter==='all'||e.loc===curFilter);
+    if (shown.length===0){ list.innerHTML='<div class="empty"><div class="ic">🔌</div><p>Нет зарядок в этой категории.</p></div>'; return; }
+    const groups={}; shown.forEach(e=>{const k=monthKey(e.date);(groups[k]=groups[k]||[]).push(e);});
+    const keys=Object.keys(groups).sort().reverse();
+    list.innerHTML = keys.map(key=>{
+      const items=groups[key].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+      const mKwh=items.reduce((s,e)=>s+e.kwh,0);
+      const mCost=items.reduce((s,e)=>s+entryCost(e),0);
+      const rows=items.map(e=>{
+        const cost=entryCost(e); const rt=entryRate(e);
+        const socLine=(e.from!=null&&e.to!=null)?'<span class="soc">'+e.from+'%<span class="arrow">→</span>'+e.to+'%</span>':'<span class="soc">—</span>';
+        const pin=e.loc==='home'?'🏠':'📍';
+        const where=e.loc==='home'?'Дом':'Дорога';
+        const ecoB=e.eco?'<span class="badge-eco">ECO</span>':'';
+        const meterB=e.src==='meter'?'<span class="badge-meter">СЧЁТЧИК</span>':'';
+        let rightB='';
+        if(e.loc==='public'){ rightB = rt===0?'<span class="badge-free">БЕСПЛАТНО</span>':'<span class="badge-pub">$'+rt.toFixed(2)+'/кВтч</span>'; }
+        let kpdLine='';
+        if(e.src==='meter'&&e.toyotaKwh){ const kpd=(e.toyotaKwh/e.kwh*100); kpdLine='<div class="kpd-badge">КПД: <b>'+kpd.toFixed(0)+'%</b> (в батарею '+e.toyotaKwh+' кВтч)</div>'; }
+        return '<div class="entry"><button class="del" onclick="delEntry('+e.id+')">×</button>'+
+          '<div class="top"><div><div class="where"><span class="pin">'+pin+'</span> '+where+' '+ecoB+' '+meterB+' '+rightB+'</div>'+
+          '<div class="date">'+fmtDate(e.date)+'</div></div>'+
+          '<div class="kwh"><span class="n">'+e.kwh.toFixed(3)+'</span> <span class="u">кВтч</span></div></div>'+
+          '<div class="meta">'+socLine+'<span class="cost">'+(cost===0?'🆓 $0':'$'+cost.toFixed(2))+' <span class="rate-tag">('+rt.toFixed(3)+')</span></span></div>'+kpdLine+'</div>';
       }).join('');
-      return `<div class="month-group">
-          <div class="month-head"><span class="m-name">${monthName(key)}</span>
-            <span class="m-stats">${mKwh.toFixed(1)} кВтч · <b>$${mCost.toFixed(2)}</b></span></div>
-          ${rows}</div>`;
+      return '<div class="month-group"><div class="month-head"><span class="m-name">'+monthName(key)+'</span><span class="m-stats">'+mKwh.toFixed(1)+' кВтч · <b>$'+mCost.toFixed(2)+'</b></span></div>'+rows+'</div>';
     }).join('');
   }
-  ['homeRate','gasMpg','gasPrice'].forEach(id => document.getElementById(id).addEventListener('input', saveSettings));
-  document.getElementById('date').value = new Date().toISOString().slice(0,10);
+
+  ['homeRate','gasMpg','gasPrice'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{save();render();}));
+  document.getElementById('meterVal').addEventListener('input',meterLive);
+  ['kwh','pubRate'].forEach(id=>document.getElementById(id).addEventListener('input',roadLive));
   load();
 </script>
 </body>
