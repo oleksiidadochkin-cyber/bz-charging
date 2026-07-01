@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Лебёдушка · Трекер зарядки</title>
+<title>Toyota BZ 2026 · Трекер зарядки</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Лебёдушка">
@@ -41,12 +41,15 @@
   .savings .ic { font-size: 22px; }
   .savings .txt { font-size: 13px; color: #6b5320; }
   .savings .txt b { color: var(--gold); font-size: 15px; }
-  .breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  @media(min-width:480px){ .breakdown { grid-template-columns: 1fr 1fr 1fr 1fr; } }
   .bd-cell { background: var(--card); border-radius: 12px; padding: 10px; box-shadow: var(--shadow); text-align: center; }
   .bd-cell .bl { font-size: 10px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; }
   .bd-cell .bv { font-size: 15px; font-weight: 700; margin-top: 2px; }
   .bd-cell.home .bv { color: var(--teal); }
-  .bd-cell.road .bv { color: var(--gold); }
+  .bd-cell.l2 .bv { color: var(--gold); }
+  .bd-cell.l3 .bv { color: #d97706; }
+  .bd-cell .bsub { font-size: 9.5px; color: var(--ink-soft); margin-top: 1px; }
   .bd-cell.free .bv { color: var(--green); }
   .sec-title { font-size: 13px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase;
     letter-spacing: .6px; margin: 24px 4px 12px; display: flex; align-items: center; justify-content: space-between; }
@@ -94,6 +97,7 @@
   .badge-pub { font-size: 10px; font-weight: 700; color: var(--gold); background: var(--gold-soft); padding: 2px 7px; border-radius: 7px; }
   .badge-free { font-size: 10px; font-weight: 700; color: var(--green); background: var(--green-soft); padding: 2px 7px; border-radius: 7px; }
   .badge-meter { font-size: 10px; font-weight: 700; color: var(--teal); background: var(--teal-soft); padding: 2px 7px; border-radius: 7px; }
+  .badge-l3 { font-size: 10px; font-weight: 700; color: #d97706; background: #fef3e2; padding: 2px 7px; border-radius: 7px; }
   .entry .kwh { text-align: right; white-space: nowrap; }
   .entry .kwh .n { font-size: 18px; font-weight: 750; letter-spacing: -.3px; }
   .entry .kwh .u { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
@@ -177,9 +181,10 @@
     </div>
   </div>
   <div class="breakdown">
-    <div class="bd-cell home"><div class="bl">🏠 Дом</div><div class="bv" id="bdHome">$0</div></div>
-    <div class="bd-cell road"><div class="bl">🛣️ Дорога</div><div class="bv" id="bdRoad">$0</div></div>
-    <div class="bd-cell free"><div class="bl">🆓 Бесплатно</div><div class="bv" id="bdFree">0</div></div>
+    <div class="bd-cell home"><div class="bl">🏠 Дом</div><div class="bv" id="bdHome">$0</div><div class="bsub" id="bdHomeK">0 кВтч</div></div>
+    <div class="bd-cell l2"><div class="bl">🔌 L2 платно</div><div class="bv" id="bdL2">$0</div><div class="bsub" id="bdL2K">0 кВтч</div></div>
+    <div class="bd-cell l3"><div class="bl">⚡ L3 платно</div><div class="bv" id="bdL3">$0</div><div class="bsub" id="bdL3K">0 кВтч</div></div>
+    <div class="bd-cell free"><div class="bl">🆓 Бесплатно</div><div class="bv" id="bdFree">$0</div><div class="bsub" id="bdFreeK">0 кВтч</div></div>
   </div>
   <div class="savings">
     <span class="ic">🏆</span>
@@ -216,15 +221,27 @@
 
     <!-- ROAD TAB -->
     <div class="tab-panel" id="panelRoad">
-      <div class="info-note">🛣️ Зарядки на станциях в поездках. Укажи кВтч и цену (0 если бесплатно).</div>
+      <div class="info-note">🛣️ Зарядки на станциях в дороге. Выбери тип и укажи цену (или отметь бесплатно).</div>
+      <div class="field">
+        <label>Тип станции</label>
+        <div class="seg">
+          <button type="button" id="ctL2" class="on" onclick="setCtype('l2')">🔌 Level 2 (AC)</button>
+          <button type="button" id="ctL3" onclick="setCtype('l3')">⚡ Level 3 (DC)</button>
+        </div>
+      </div>
       <div class="row2">
         <div class="field"><label>Было %</label><input type="number" id="socFrom" inputmode="numeric" placeholder="40"></div>
         <div class="field"><label>Стало %</label><input type="number" id="socTo" inputmode="numeric" placeholder="80"></div>
       </div>
       <div class="field"><label>кВтч (со станции / Toyota app)</label><input type="number" id="kwh" inputmode="decimal" step="0.001" placeholder="26.937"></div>
+      <div class="field" style="margin-bottom:10px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;color:var(--ink);">
+          <input type="checkbox" id="isFree" style="width:auto;transform:scale(1.2);" onchange="freeToggle()"> 🆓 Бесплатная зарядка
+        </label>
+      </div>
       <div class="row2">
         <div class="field"><label>Дата</label><input type="date" id="date"></div>
-        <div class="field"><label>Цена $/кВтч (0 = бесплатно)</label><input type="number" id="pubRate" inputmode="decimal" step="0.01" placeholder="0.50" value="0.50"></div>
+        <div class="field" id="priceField"><label>Цена $/кВтч</label><input type="number" id="pubRate" inputmode="decimal" step="0.01" placeholder="0.50" value="0.50"></div>
       </div>
       <button class="btn-add" onclick="addRoad()">Добавить зарядку в дороге</button>
       <div class="live-cost" id="roadLive"></div>
@@ -238,12 +255,12 @@
   </div>
   <div class="settings-toggle" onclick="toggleSettings()">⚙️ Настройки</div>
   <div class="settings" id="settings">
-    <div class="field"><label>Домашний тариф Avista ($/кВтч)</label><input type="number" id="homeRate" inputmode="decimal" step="0.001" value="0.1277"></div>
+    <div class="field"><label>Домашний тариф Avista ($/кВтч)</label><input type="number" id="homeRate" inputmode="decimal" step="0.001" value="0.0993"></div>
     <div class="row2">
       <div class="field"><label>Бензин: миль/галлон</label><input type="number" id="gasMpg" inputmode="decimal" value="20"></div>
       <div class="field"><label>Бензин: $/галлон</label><input type="number" id="gasPrice" inputmode="decimal" step="0.01" value="4.60"></div>
     </div>
-    <p class="hint">📌 Тариф $0.1277 = 12¢ + city tax 6.38%. Новый тариф применяется к новым зарядкам, старые хранят свой.</p>
+    <p class="hint">📌 Тариф $0.0993 = 12.105¢ + city tax 6.38% − My Energy Discount 20%. Реальная цена за кВтч зарядки.</p>
   </div>
 
   <div class="sec-title">📊 Эффективность и запас хода</div>
@@ -283,11 +300,11 @@
   <div id="list"></div>
   <div class="minirate">
     1% батареи ≈ <b>0.657 кВтч</b> · реальный расход <b>~0.199 кВтч/милю</b><br>
-    1 кВтч дома ≈ <b>12.8 центов</b> · 1 миля дома ≈ <b>2.5 цента</b>
+    1 кВтч дома ≈ <b>10 центов</b> (со скидкой 20%) · 1 миля дома ≈ <b>2 цента</b>
   </div>
 </div>
 <script>
-var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date": "2026-06-12", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921867805, "src": "toyota"}, {"from": 65, "to": 66, "kwh": 0.657, "date": "2026-06-12", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921868805, "src": "toyota"}, {"from": 66, "to": 77, "kwh": 7.227, "date": "2026-06-13", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921869805, "src": "toyota"}, {"from": 77, "to": 80, "kwh": 1.971, "date": "2026-06-13", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921870805, "src": "toyota"}, {"from": 71, "to": 80, "kwh": 5.913, "date": "2026-06-13", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921871805, "src": "toyota"}, {"from": 76, "to": 80, "kwh": 2.628, "date": "2026-06-14", "loc": "home", "eco": true, "rate": 0.1277, "id": 1781921872805, "src": "toyota"}, {"from": 70, "to": 80, "kwh": 6.57, "date": "2026-06-14", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921873805, "src": "toyota"}, {"from": 62, "to": 80, "kwh": 11.826, "date": "2026-06-15", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921874805, "src": "toyota"}, {"from": 61, "to": 80, "kwh": 12.483, "date": "2026-06-19", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921875805, "src": "toyota"}, {"from": 64, "to": 80, "kwh": 10.512, "date": "2026-06-21", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921876805, "src": "toyota"}, {"from": 67, "to": 80, "kwh": 8.541, "date": "2026-06-23", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921877805, "src": "toyota"}, {"from": 66, "to": 80, "kwh": 9.198, "date": "2026-06-24", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921878805, "src": "toyota"}, {"from": 62, "to": 80, "kwh": 11.826, "date": "2026-06-26", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921879805, "src": "toyota"}, {"from": 77, "to": 79, "kwh": 1.314, "date": "2026-06-26", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921880805, "src": "toyota"}, {"from": 57, "to": 94, "kwh": 24.309, "date": "2026-06-26", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921881805, "src": "toyota"}, {"from": 72, "to": 78, "kwh": 3.942, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921882805, "src": "toyota"}, {"from": 40, "to": 81, "kwh": 26.937, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921883805, "src": "toyota"}, {"from": 68, "to": 79, "kwh": 7.227, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921884805, "src": "toyota"}, {"from": 67, "to": 100, "kwh": 21.681, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921885805, "src": "toyota"}, {"from": 84, "to": 92, "kwh": 5.256, "date": "2026-06-28", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921886805, "src": "toyota"}, {"from": 64, "to": 100, "kwh": 23.652, "date": "2026-06-28", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921887805, "src": "toyota"}, {"from": 52, "to": 82, "kwh": 19.71, "date": "2026-06-28", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921888805, "src": "toyota"}, {"from": 30, "to": 80, "kwh": 32.85, "date": "2026-06-29", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921889805, "src": "toyota"}, {"from": 79, "to": 80, "kwh": 0.657, "date": "2026-06-29", "loc": "public", "eco": false, "rate": 0.0, "id": 1781921890805, "src": "toyota"}, {"from": 80, "to": 82, "kwh": 1.314, "date": "2026-06-29", "loc": "public", "eco": false, "rate": 0.0, "id": 1781921891805, "src": "toyota"}], "odoReadings": [{"odo": 332, "soc": 61, "date": "2026-06-20", "id": 1781923263894}, {"odo": 384, "soc": 64, "date": "2026-06-21", "id": 1782015852107}, {"odo": 408, "soc": 72, "date": "2026-06-22", "id": 1782102760618}, {"odo": 549, "soc": 62, "date": "2026-06-26", "id": 1782452129622}, {"odo": 1300, "soc": 80, "date": "2026-06-30", "id": 1782900000000}, {"odo": 1323, "soc": 80, "date": "2026-07-01", "id": 1782910000000}], "meterReadings": [{"reading": 3.88, "date": "2026-07-01", "id": 1782920000000}], "settings": {"homeRate": 0.1277, "gasMpg": 20, "gasPrice": 4.6, "meterStart": 0}};
+var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date": "2026-06-12", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921867805, "src": "toyota", "ctype": "home"}, {"from": 65, "to": 66, "kwh": 0.657, "date": "2026-06-12", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921868805, "src": "toyota", "ctype": "home"}, {"from": 66, "to": 77, "kwh": 7.227, "date": "2026-06-13", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921869805, "src": "toyota", "ctype": "home"}, {"from": 77, "to": 80, "kwh": 1.971, "date": "2026-06-13", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921870805, "src": "toyota", "ctype": "home"}, {"from": 71, "to": 80, "kwh": 5.913, "date": "2026-06-13", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921871805, "src": "toyota", "ctype": "home"}, {"from": 76, "to": 80, "kwh": 2.628, "date": "2026-06-14", "loc": "home", "eco": true, "rate": 0.1277, "id": 1781921872805, "src": "toyota", "ctype": "home"}, {"from": 70, "to": 80, "kwh": 6.57, "date": "2026-06-14", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921873805, "src": "toyota", "ctype": "home"}, {"from": 62, "to": 80, "kwh": 11.826, "date": "2026-06-15", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921874805, "src": "toyota", "ctype": "home"}, {"from": 61, "to": 80, "kwh": 12.483, "date": "2026-06-19", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921875805, "src": "toyota", "ctype": "home"}, {"from": 64, "to": 80, "kwh": 10.512, "date": "2026-06-21", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921876805, "src": "toyota", "ctype": "home"}, {"from": 67, "to": 80, "kwh": 8.541, "date": "2026-06-23", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921877805, "src": "toyota", "ctype": "home"}, {"from": 66, "to": 80, "kwh": 9.198, "date": "2026-06-24", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921878805, "src": "toyota", "ctype": "home"}, {"from": 62, "to": 80, "kwh": 11.826, "date": "2026-06-26", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921879805, "src": "toyota", "ctype": "home"}, {"from": 77, "to": 79, "kwh": 1.314, "date": "2026-06-26", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921880805, "src": "toyota", "ctype": "home"}, {"from": 57, "to": 94, "kwh": 24.309, "date": "2026-06-26", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921881805, "src": "toyota", "ctype": "l3"}, {"from": 72, "to": 78, "kwh": 3.942, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921882805, "src": "toyota", "ctype": "l3"}, {"from": 40, "to": 81, "kwh": 26.937, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921883805, "src": "toyota", "ctype": "l3"}, {"from": 68, "to": 79, "kwh": 7.227, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921884805, "src": "toyota", "ctype": "l3"}, {"from": 67, "to": 100, "kwh": 21.681, "date": "2026-06-27", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921885805, "src": "toyota", "ctype": "l3"}, {"from": 84, "to": 92, "kwh": 5.256, "date": "2026-06-28", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921886805, "src": "toyota", "ctype": "l3"}, {"from": 64, "to": 100, "kwh": 23.652, "date": "2026-06-28", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921887805, "src": "toyota", "ctype": "l3"}, {"from": 52, "to": 82, "kwh": 19.71, "date": "2026-06-28", "loc": "public", "eco": false, "rate": 0.5, "id": 1781921888805, "src": "toyota", "ctype": "l3"}, {"from": 30, "to": 80, "kwh": 32.85, "date": "2026-06-29", "loc": "home", "eco": false, "rate": 0.1277, "id": 1781921889805, "src": "toyota", "ctype": "home"}, {"from": 79, "to": 80, "kwh": 0.657, "date": "2026-06-29", "loc": "public", "eco": false, "rate": 0.0, "id": 1781921890805, "src": "toyota", "ctype": "free"}, {"from": 80, "to": 82, "kwh": 1.314, "date": "2026-06-29", "loc": "public", "eco": false, "rate": 0.0, "id": 1781921891805, "src": "toyota", "ctype": "free"}], "odoReadings": [{"odo": 332, "soc": 61, "date": "2026-06-20", "id": 1781923263894}, {"odo": 384, "soc": 64, "date": "2026-06-21", "id": 1782015852107}, {"odo": 408, "soc": 72, "date": "2026-06-22", "id": 1782102760618}, {"odo": 549, "soc": 62, "date": "2026-06-26", "id": 1782452129622}, {"odo": 1300, "soc": 80, "date": "2026-06-30", "id": 1782900000000}, {"odo": 1323, "soc": 80, "date": "2026-07-01", "id": 1782910000000}], "meterReadings": [{"reading": 3.88, "date": "2026-07-01", "id": 1782920000000}], "settings": {"homeRate": 0.0993, "gasMpg": 20, "gasPrice": 4.6, "meterStart": 0}};
 </script>
 <script>
   let entries = [];
@@ -295,6 +312,7 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
   let meterReadings = [];
   let curFilter = 'all';
   let curTab = 'meter';
+  let curCtype = 'l2';
   const CAP_PCT = 0.657;
   const PURCHASE_ODO = 1, PURCHASE_SOC = 100;
 
@@ -324,7 +342,7 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
       settings: { homeRate: homeRate(), gasMpg: gasMpg(), gasPrice: gasPrice() }
     })); } catch(e){}
   }
-  const homeRate = () => parseFloat(document.getElementById('homeRate').value) || 0.1277;
+  const homeRate = () => parseFloat(document.getElementById('homeRate').value) || 0.0993;
   const gasMpg = () => parseFloat(document.getElementById('gasMpg').value) || 20;
   const gasPrice = () => parseFloat(document.getElementById('gasPrice').value) || 4.60;
 
@@ -334,6 +352,16 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
     document.getElementById('tabRoad').classList.toggle('on', t==='road');
     document.getElementById('panelMeter').classList.toggle('on', t==='meter');
     document.getElementById('panelRoad').classList.toggle('on', t==='road');
+  }
+  function setCtype(t) {
+    curCtype = t;
+    document.getElementById('ctL2').classList.toggle('on', t==='l2');
+    document.getElementById('ctL3').classList.toggle('on', t==='l3');
+  }
+  function freeToggle() {
+    const free = document.getElementById('isFree').checked;
+    document.getElementById('priceField').style.display = free ? 'none' : 'block';
+    roadLive();
   }
   function setFilter(f) {
     curFilter = f;
@@ -389,21 +417,26 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
     const kwh = parseFloat(document.getElementById('kwh').value);
     const el = document.getElementById('roadLive');
     if (!kwh) { el.innerHTML=''; return; }
-    const rate = parseFloat(document.getElementById('pubRate').value)||0;
+    const free = document.getElementById('isFree').checked;
+    const rate = free ? 0 : (parseFloat(document.getElementById('pubRate').value)||0);
     const cost = kwh*rate;
-    el.innerHTML = rate===0 ? '🆓 Бесплатно · ~'+Math.round(kwh/0.199)+' миль' : '≈ <b>$'+cost.toFixed(2)+'</b> · ~'+Math.round(kwh/0.199)+' миль';
+    const typeLbl = free ? '🆓 Бесплатно' : (curCtype==='l3'?'⚡ L3':'🔌 L2');
+    el.innerHTML = (rate===0 ? '🆓 Бесплатно' : '≈ <b>$'+cost.toFixed(2)+'</b>')+' · '+typeLbl+' · ~'+Math.round(kwh/0.199)+' миль';
   }
   function addRoad() {
     const from = parseInt(document.getElementById('socFrom').value);
     const to = parseInt(document.getElementById('socTo').value);
     const kwh = parseFloat(document.getElementById('kwh').value);
     const date = document.getElementById('date').value || new Date().toISOString().slice(0,10);
-    const rate = parseFloat(document.getElementById('pubRate').value)||0;
+    const free = document.getElementById('isFree').checked;
+    const rate = free ? 0 : (parseFloat(document.getElementById('pubRate').value)||0);
+    const ctype = free ? 'free' : curCtype;
     if (!kwh||kwh<=0) { alert('Введите кВтч'); return; }
-    entries.push({ id: Date.now(), from:isNaN(from)?null:from, to:isNaN(to)?null:to, kwh, date, loc:'public', eco:false, rate });
+    entries.push({ id: Date.now(), from:isNaN(from)?null:from, to:isNaN(to)?null:to, kwh, date, loc:'public', eco:false, rate, ctype });
     save(); render();
     document.getElementById('socFrom').value=''; document.getElementById('socTo').value='';
-    document.getElementById('kwh').value=''; document.getElementById('roadLive').innerHTML='';
+    document.getElementById('kwh').value=''; document.getElementById('isFree').checked=false;
+    document.getElementById('priceField').style.display='block'; document.getElementById('roadLive').innerHTML='';
   }
 
   function delEntry(id) {
@@ -478,13 +511,18 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
     document.getElementById('sumKwh').innerHTML = totKwh.toFixed(1)+'<span class="unit"> кВтч</span>';
     document.getElementById('sumCost').innerHTML = '$'+totCost.toFixed(2);
     document.getElementById('sumCount').textContent = entries.length+ ' зарядок';
-    // breakdown
-    const homeC = entries.filter(e=>e.loc==='home').reduce((s,e)=>s+entryCost(e),0);
-    const roadC = entries.filter(e=>e.loc==='public'&&entryRate(e)>0).reduce((s,e)=>s+entryCost(e),0);
-    const freeN = entries.filter(e=>e.loc==='public'&&entryRate(e)===0).length;
-    document.getElementById('bdHome').textContent = '$'+homeC.toFixed(2);
-    document.getElementById('bdRoad').textContent = '$'+roadC.toFixed(2);
-    document.getElementById('bdFree').textContent = freeN+' шт';
+    // breakdown по типам
+    function ctypeOf(e){ if(e.loc==='home')return 'home'; if(e.ctype)return e.ctype; return entryRate(e)===0?'free':'l3'; }
+    const cats = {home:{c:0,k:0}, l2:{c:0,k:0}, l3:{c:0,k:0}, free:{c:0,k:0}};
+    entries.forEach(e=>{ const t=ctypeOf(e); if(cats[t]){ cats[t].c+=entryCost(e); cats[t].k+=e.kwh; } });
+    document.getElementById('bdHome').textContent = '$'+cats.home.c.toFixed(2);
+    document.getElementById('bdHomeK').textContent = cats.home.k.toFixed(1)+' кВтч';
+    document.getElementById('bdL2').textContent = '$'+cats.l2.c.toFixed(2);
+    document.getElementById('bdL2K').textContent = cats.l2.k.toFixed(1)+' кВтч';
+    document.getElementById('bdL3').textContent = '$'+cats.l3.c.toFixed(2);
+    document.getElementById('bdL3K').textContent = cats.l3.k.toFixed(1)+' кВтч';
+    document.getElementById('bdFree').textContent = '$0';
+    document.getElementById('bdFreeK').textContent = cats.free.k.toFixed(1)+' кВтч';
 
     const eff = calcEfficiency();
     const consPlug = eff ? eff.consPlug : 0.199;
@@ -524,7 +562,12 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
         const ecoB=e.eco?'<span class="badge-eco">ECO</span>':'';
         const meterB=e.src==='meter'?'<span class="badge-meter">СЧЁТЧИК</span>':'';
         let rightB='';
-        if(e.loc==='public'){ rightB = rt===0?'<span class="badge-free">БЕСПЛАТНО</span>':'<span class="badge-pub">$'+rt.toFixed(2)+'/кВтч</span>'; }
+        if(e.loc==='public'){
+          const ct = e.ctype || (rt===0?'free':'l3');
+          if(ct==='free') rightB='<span class="badge-free">🆓 БЕСПЛАТНО</span>';
+          else if(ct==='l2') rightB='<span class="badge-pub">🔌 L2 · $'+rt.toFixed(2)+'</span>';
+          else rightB='<span class="badge-l3">⚡ L3 · $'+rt.toFixed(2)+'</span>';
+        }
         let kpdLine='';
         if(e.src==='meter'&&e.toyotaKwh){ const kpd=(e.toyotaKwh/e.kwh*100); kpdLine='<div class="kpd-badge">КПД: <b>'+kpd.toFixed(0)+'%</b> (в батарею '+e.toyotaKwh+' кВтч)</div>'; }
         return '<div class="entry"><button class="del" onclick="delEntry('+e.id+')">×</button>'+
