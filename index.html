@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Toyota BZ 2026 · Трекер зарядки</title>
+<title>Лебёдушка · Трекер зарядки</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Лебёдушка">
@@ -91,7 +91,7 @@
     margin-bottom: 9px; position: relative; animation: pop .25s ease; }
   @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   .entry .top { display: flex; justify-content: space-between; align-items: flex-start; }
-  .entry .where { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14.5px; flex-wrap: wrap; padding-right: 28px; }
+  .entry .where { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14.5px; flex-wrap: wrap; padding-right: 60px; }
   .entry .where .pin { font-size: 15px; }
   .badge-eco { font-size: 10px; font-weight: 700; color: var(--green); background: var(--green-soft); padding: 2px 7px; border-radius: 7px; }
   .badge-pub { font-size: 10px; font-weight: 700; color: var(--gold); background: var(--gold-soft); padding: 2px 7px; border-radius: 7px; }
@@ -110,6 +110,17 @@
   .entry .del { position: absolute; top: 11px; right: 11px; width: 26px; height: 26px; border: none; background: transparent;
     color: #c2ccdb; font-size: 18px; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
   .entry .del:hover { background: #fdeaea; color: #d14343; }
+  .entry .edit { position: absolute; top: 11px; right: 42px; width: 26px; height: 26px; border: none; background: transparent;
+    color: #c2ccdb; font-size: 14px; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .entry .edit:hover { background: var(--teal-soft); color: var(--teal); }
+  .edit-form { background: var(--pearl); border-radius: 10px; padding: 12px; margin-top: 10px; border: 1.5px solid var(--teal); }
+  .edit-form .ef-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .edit-form label { font-size: 11px; color: var(--ink-soft); font-weight: 600; display: block; margin-bottom: 3px; }
+  .edit-form input, .edit-form select { width: 100%; padding: 8px 10px; font-size: 14px; border: 1.5px solid var(--line);
+    border-radius: 8px; background: #fff; font-family: inherit; -webkit-appearance: none; }
+  .edit-form .ef-btns { display: flex; gap: 8px; margin-top: 4px; }
+  .edit-form .ef-save { flex: 1; padding: 9px; background: var(--teal); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .edit-form .ef-cancel { flex: 1; padding: 9px; background: #fff; color: var(--ink-soft); border: 1.5px solid var(--line); border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; font-family: inherit; }
   .empty { text-align: center; padding: 40px 20px; color: var(--ink-soft); }
   .empty .ic { font-size: 36px; opacity: .4; }
   .empty p { font-size: 14px; margin-top: 8px; }
@@ -313,6 +324,7 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
   let curFilter = 'all';
   let curTab = 'meter';
   let curCtype = 'l2';
+  let editingId = null;
   const CAP_PCT = 0.657;
   const PURCHASE_ODO = 1, PURCHASE_SOC = 100;
 
@@ -443,6 +455,30 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
     if (!confirm('Удалить эту зарядку?')) return;
     entries = entries.filter(e=>e.id!==id); save(); render();
   }
+  function startEdit(id){ editingId = (editingId===id)?null:id; render(); }
+  function saveEdit(id) {
+    const e = entries.find(x=>x.id===id); if(!e) return;
+    const kwh = parseFloat(document.getElementById('ef-kwh-'+id).value);
+    const date = document.getElementById('ef-date-'+id).value;
+    const from = parseInt(document.getElementById('ef-from-'+id).value);
+    const to = parseInt(document.getElementById('ef-to-'+id).value);
+    if(!kwh||kwh<=0){ alert('Введите кВтч'); return; }
+    e.kwh = kwh;
+    if(date) e.date = date;
+    e.from = isNaN(from)?null:from;
+    e.to = isNaN(to)?null:to;
+    // тип/цена — если дорожная
+    if(e.loc==='public'){
+      const ct = document.getElementById('ef-ctype-'+id).value;
+      e.ctype = ct;
+      if(ct==='free'){ e.rate = 0; }
+      else { const r = parseFloat(document.getElementById('ef-rate-'+id).value); e.rate = isNaN(r)?e.rate:r; }
+    } else {
+      const r = parseFloat(document.getElementById('ef-rate-'+id).value);
+      if(!isNaN(r)) e.rate = r;
+    }
+    editingId = null; save(); render();
+  }
 
   // ---- ODO ----
   function addOdo() {
@@ -570,11 +606,40 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
         }
         let kpdLine='';
         if(e.src==='meter'&&e.toyotaKwh){ const kpd=(e.toyotaKwh/e.kwh*100); kpdLine='<div class="kpd-badge">КПД: <b>'+kpd.toFixed(0)+'%</b> (в батарею '+e.toyotaKwh+' кВтч)</div>'; }
-        return '<div class="entry"><button class="del" onclick="delEntry('+e.id+')">×</button>'+
+        let editForm = '';
+        if(editingId===e.id){
+          const isPub = e.loc==='public';
+          const ctVal = e.ctype || (rt===0?'free':'l3');
+          editForm = '<div class="edit-form">'+
+            '<div class="ef-row">'+
+              '<div><label>Было %</label><input type="number" id="ef-from-'+e.id+'" value="'+(e.from!=null?e.from:'')+'"></div>'+
+              '<div><label>Стало %</label><input type="number" id="ef-to-'+e.id+'" value="'+(e.to!=null?e.to:'')+'"></div>'+
+            '</div>'+
+            '<div class="ef-row">'+
+              '<div><label>кВтч</label><input type="number" step="0.001" id="ef-kwh-'+e.id+'" value="'+e.kwh+'"></div>'+
+              '<div><label>Дата</label><input type="date" id="ef-date-'+e.id+'" value="'+e.date+'"></div>'+
+            '</div>'+
+            (isPub ?
+              '<div class="ef-row">'+
+                '<div><label>Тип</label><select id="ef-ctype-'+e.id+'" onchange="document.getElementById('ef-rate-'+e.id+'').disabled=(this.value==='free')">'+
+                  '<option value="l2"'+(ctVal==='l2'?' selected':'')+'>🔌 Level 2</option>'+
+                  '<option value="l3"'+(ctVal==='l3'?' selected':'')+'>⚡ Level 3</option>'+
+                  '<option value="free"'+(ctVal==='free'?' selected':'')+'>🆓 Бесплатно</option>'+
+                '</select></div>'+
+                '<div><label>Цена $/кВтч</label><input type="number" step="0.01" id="ef-rate-'+e.id+'" value="'+rt+'"'+(ctVal==='free'?' disabled':'')+'></div>'+
+              '</div>'
+              :
+              '<div class="ef-row"><div><label>Тариф $/кВтч</label><input type="number" step="0.001" id="ef-rate-'+e.id+'" value="'+rt+'"></div><div></div></div>'
+            )+
+            '<div class="ef-btns"><button class="ef-save" onclick="saveEdit('+e.id+')">Сохранить</button>'+
+            '<button class="ef-cancel" onclick="startEdit('+e.id+')">Отмена</button></div>'+
+          '</div>';
+        }
+        return '<div class="entry"><button class="edit" onclick="startEdit('+e.id+')">✏️</button><button class="del" onclick="delEntry('+e.id+')">×</button>'+
           '<div class="top"><div><div class="where"><span class="pin">'+pin+'</span> '+where+' '+ecoB+' '+meterB+' '+rightB+'</div>'+
           '<div class="date">'+fmtDate(e.date)+'</div></div>'+
           '<div class="kwh"><span class="n">'+e.kwh.toFixed(3)+'</span> <span class="u">кВтч</span></div></div>'+
-          '<div class="meta">'+socLine+'<span class="cost">'+(cost===0?'🆓 $0':'$'+cost.toFixed(2))+' <span class="rate-tag">('+rt.toFixed(3)+')</span></span></div>'+kpdLine+'</div>';
+          '<div class="meta">'+socLine+'<span class="cost">'+(cost===0?'🆓 $0':'$'+cost.toFixed(2))+' <span class="rate-tag">('+rt.toFixed(3)+')</span></span></div>'+kpdLine+editForm+'</div>';
       }).join('');
       return '<div class="month-group"><div class="month-head"><span class="m-name">'+monthName(key)+'</span><span class="m-stats">'+mKwh.toFixed(1)+' кВтч · <b>$'+mCost.toFixed(2)+'</b></span></div>'+rows+'</div>';
     }).join('');
