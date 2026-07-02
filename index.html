@@ -89,9 +89,10 @@
   .month-head .m-stats b { color: var(--green); }
   .entry { background: var(--card); border-radius: 14px; padding: 14px 15px; box-shadow: var(--shadow);
     margin-bottom: 9px; position: relative; animation: pop .25s ease; }
+  .entry .kwh { padding-top: 2px; }
   @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .entry .top { display: flex; justify-content: space-between; align-items: flex-start; }
-  .entry .where { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14.5px; flex-wrap: wrap; padding-right: 60px; }
+  .entry .top { display: flex; justify-content: space-between; align-items: flex-start; padding-right: 56px; }
+  .entry .where { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14.5px; flex-wrap: wrap; }
   .entry .where .pin { font-size: 15px; }
   .badge-eco { font-size: 10px; font-weight: 700; color: var(--green); background: var(--green-soft); padding: 2px 7px; border-radius: 7px; }
   .badge-pub { font-size: 10px; font-weight: 700; color: var(--gold); background: var(--gold-soft); padding: 2px 7px; border-radius: 7px; }
