@@ -467,6 +467,7 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
     entries = entries.filter(e=>e.id!==id); save(); render();
   }
   function startEdit(id){ editingId = (editingId===id)?null:id; render(); }
+  function efTypeChange(id, val){ const r=document.getElementById('ef-rate-'+id); if(r){ r.disabled=(val==='free'); if(val==='free') r.value=0; } }
   function saveEdit(id) {
     const e = entries.find(x=>x.id===id); if(!e) return;
     const kwh = parseFloat(document.getElementById('ef-kwh-'+id).value);
@@ -632,7 +633,7 @@ var SEED = {"version": 3, "entries": [{"from": 64, "to": 65, "kwh": 0.657, "date
             '</div>'+
             (isPub ?
               '<div class="ef-row">'+
-                '<div><label>Тип</label><select id="ef-ctype-'+e.id+'" onchange="document.getElementById('ef-rate-'+e.id+'').disabled=(this.value==='free')">'+
+                '<div><label>Тип</label><select id="ef-ctype-'+e.id+'" onchange="efTypeChange('+e.id+',this.value)">'+
                   '<option value="l2"'+(ctVal==='l2'?' selected':'')+'>🔌 Level 2</option>'+
                   '<option value="l3"'+(ctVal==='l3'?' selected':'')+'>⚡ Level 3</option>'+
                   '<option value="free"'+(ctVal==='free'?' selected':'')+'>🆓 Бесплатно</option>'+
